@@ -1,0 +1,124 @@
+ .student-card {
+   display: flex;
+   align-items: center;
+   gap: 12px;
+   padding: 14px;
+   background: #f8fafc;
+   border-radius: 10px;
+   border: 1px solid #e2e8f0;
+ }
+
+ .s-avatar {
+   width: 44px;
+   height: 44px;
+   border-radius: 50%;
+   background: #dbeafe;
+   color: #2563eb;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   font-weight: 700;
+   font-size: 1rem;
+   flex-shrink: 0;
+ }
+
+ .error-msg {
+   display: flex;
+   align-items: center;
+   gap: 8px;
+   padding: 10px 14px;
+   background: #fee2e2;
+   border-radius: 8px;
+   color: #b91c1c;
+   font-size: .875rem;
+
+   mat-icon {
+     font-size: 18px;
+   }
+ }
+
+ .plan-rows {
+   display: flex;
+   flex-direction: column;
+   gap: 0;
+ }
+
+ .plan-row {
+   display: flex;
+   align-items: center;
+   gap: 12px;
+   padding: 12px 0;
+   border-bottom: 1px solid #f1f5f9;
+ }
+
+ .plan-total {
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
+   padding: 12px 0 4px;
+   font-size: .875rem;
+   color: #64748b;
+ }
+
+ .calc-preview {
+   display: flex;
+   align-items: center;
+   gap: 8px;
+   padding: 10px 14px;
+   background: #eff6ff;
+   border-radius: 8px;
+   color: #1e40af;
+   font-size: .875rem;
+
+   mat-icon {
+     font-size: 18px;
+   }
+ }
+
+ .example-row {
+   padding: 10px;
+   background: #f8fafc;
+   border-radius: 8px;
+   display: flex;
+   flex-direction: column;
+   gap: 2px;
+ }
+
+ .prev-row {
+   display: flex;
+   justify-content: space-between;
+   font-size: .875rem;
+   padding: 6px 0;
+ }
+
+ .freq-badge {
+   padding: 2px 8px;
+   border-radius: 12px;
+   font-size: .72rem;
+   font-weight: 600;
+ }
+
+ .freq-monthly {
+   background: #dcfce7;
+   color: #15803d;
+ }
+
+ .freq-quarterly {
+   background: #dbeafe;
+   color: #1e40af;
+ }
+
+ .freq-semi_annual {
+   background: #fef3c7;
+   color: #b45309;
+ }
+
+ .freq-annual {
+   background: #f3e8ff;
+   color: #7e22ce;
+ }
+
+ .freq-one_time {
+   background: #f1f5f9;
+   color: #475569;
+ }

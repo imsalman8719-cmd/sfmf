@@ -1,0 +1,244 @@
+<div class="page-container">
+  <div class="flex-between mb-6">
+    <div>
+      <h1 class="section-title">Assign Fee Plan</h1>
+      <p class="section-subtitle">Set individual billing frequencies per student</p>
+    </div>
+    <button mat-stroked-button routerLink="/student-fee-plans"><mat-icon>arrow_back</mat-icon> Back</button>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 360px;gap:20px;align-items:start">
+
+    <!-- LEFT: Student lookup + plan form -->
+    <div style="display:flex;flex-direction:column;gap:16px">
+
+      <!-- Step 1: Find student -->
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Step 1 — Find Student</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div style="display:flex;gap:12px;margin-top:12px;align-items:flex-end">
+            <mat-form-field style="flex:1">
+              <mat-label>Registration Number</mat-label>
+              <input matInput [formControl]="regNoCtrl" placeholder="STU-2024-XXXXXX" (keyup.enter)="lookupStudent()">
+              <mat-icon matSuffix>badge</mat-icon>
+              <mat-hint>Enter student registration number and press Enter or click Search</mat-hint>
+            </mat-form-field>
+            <button mat-flat-button color="primary" (click)="lookupStudent()" [disabled]="searching()">
+              @if (searching()) { <mat-spinner diameter="18" /> } @else { <mat-icon>search</mat-icon> }
+              Search
+            </button>
+          </div>
+
+          @if (student()) {
+          <div class="student-card mt-4">
+            <div class="s-avatar">{{ student()!.user?.firstName?.[0] }}{{ student()!.user?.lastName?.[0] }}</div>
+            <div style="flex:1">
+              <div style="font-weight:700;font-size:1rem">{{ student()!.user?.firstName }} {{ student()!.user?.lastName
+                }}</div>
+              <div style="font-size:.8rem;color:#64748b">{{ student()!.registrationNumber }} · {{ student()!.class?.name
+                || 'No class' }}</div>
+              <div style="font-size:.8rem;color:#64748b">{{ student()!.user?.email }}</div>
+            </div>
+            <span class="badge" [class]="student()!.isActive ? 'badge-active' : 'badge-inactive'">
+              {{ student()!.isActive ? 'Active' : 'Inactive' }}
+            </span>
+          </div>
+          }
+          @if (notFound()) {
+          <div class="error-msg mt-4"><mat-icon>search_off</mat-icon> No student found with that registration number
+          </div>
+          }
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Step 2: Academic Year -->
+      @if (student()) {
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Step 2 — Academic Year</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <mat-form-field class="mt-4 w-full">
+            <mat-label>Academic Year *</mat-label>
+            <mat-select [formControl]="yearCtrl" (selectionChange)="onYearChange($event.value)">
+              @for (y of years(); track y.id) {
+              <mat-option [value]="y.id">{{ y.name }}{{ y.isCurrent ? ' (Current)' : '' }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Step 3: Fee Plan rows -->
+      @if (yearCtrl.value) {
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Step 3 — Fee Plan</mat-card-title>
+          <mat-card-subtitle>Add each fee structure with the student's chosen billing frequency</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+
+          <!-- Existing plan rows -->
+          @if (planRows().length) {
+          <div class="plan-rows">
+            @for (row of planRows(); track $index; let i = $index) {
+            <div class="plan-row">
+              <div style="flex:1;min-width:0">
+                <div style="font-weight:600;font-size:.875rem">{{ row.feeStructure?.name }}</div>
+                <div style="font-size:.75rem;color:#64748b;text-transform:capitalize">
+                  {{ row.feeStructure?.category }} · Base: {{ row.feeStructure?.amount | currency:'PKR
+                  ':'symbol':'1.0-0' }}/month
+                </div>
+              </div>
+              <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                <span class="freq-badge freq-{{ row.billingFrequency }}">
+                  {{ row.billingFrequency | titlecase }} ({{ MULTIPLIER_LABEL[row.billingFrequency] }})
+                </span>
+                <span style="font-weight:700;color:#2563eb">
+                  {{ calcAmount(row) | currency:'PKR ':'symbol':'1.0-0' }}
+                </span>
+                <button mat-icon-button (click)="editRow(i)" matTooltip="Edit"><mat-icon>edit</mat-icon></button>
+                <button mat-icon-button (click)="removeRow(i)" style="color:#dc2626"
+                  matTooltip="Remove"><mat-icon>delete</mat-icon></button>
+              </div>
+            </div>
+            }
+            <div class="plan-total">
+              <span>Estimated Total per Period</span>
+              <strong style="color:#2563eb;font-size:1.1rem">{{ totalAmount() | currency:'PKR ':'symbol':'1.0-0'
+                }}</strong>
+            </div>
+          </div>
+          <mat-divider class="mt-4 mb-4" />
+          }
+
+          <!-- Add new fee structure row -->
+          <h4 style="font-weight:600;color:#475569;font-size:.875rem;margin-bottom:12px">
+            {{ editingIndex() !== null ? 'Edit Fee Structure' : 'Add Fee Structure' }}
+          </h4>
+          <form [formGroup]="rowForm" (ngSubmit)="addRow()" style="display:flex;flex-direction:column;gap:10px">
+            <mat-form-field>
+              <mat-label>Fee Structure *</mat-label>
+              <mat-select formControlName="feeStructureId">
+                @for (fs of availableFeeStructures(); track fs.id) {
+                <mat-option [value]="fs.id">{{ fs.name }} ({{ fs.amount | currency:'PKR ':'symbol':'1.0-0'
+                  }}/mo)</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <div class="form-grid-2">
+              <mat-form-field>
+                <mat-label>Billing Frequency *</mat-label>
+                <mat-select formControlName="billingFrequency">
+                  @for (f of frequencies; track f.v) {
+                  <mat-option [value]="f.v">{{ f.l }}</mat-option>
+                  }
+                </mat-select>
+                <mat-hint>Amount = base × multiplier</mat-hint>
+              </mat-form-field>
+              <mat-form-field>
+                <mat-label>Custom Amount (optional)</mat-label>
+                <input matInput type="number" formControlName="customAmount"
+                  placeholder="Leave blank to auto-calculate">
+                <span matTextPrefix>PKR &nbsp;</span>
+                <mat-hint>Overrides frequency calculation</mat-hint>
+              </mat-form-field>
+            </div>
+            <mat-form-field>
+              <mat-label>Notes</mat-label>
+              <input matInput formControlName="notes" placeholder="e.g. Agreed quarterly payment">
+            </mat-form-field>
+
+            <!-- Preview calculated amount -->
+            @if (rowForm.get('feeStructureId')?.value && rowForm.get('billingFrequency')?.value) {
+            <div class="calc-preview">
+              <mat-icon>calculate</mat-icon>
+              <span>
+                @if (rowForm.get('customAmount')?.value) {
+                Custom amount: <strong>{{ rowForm.get('customAmount')?.value | currency:'PKR ':'symbol':'1.0-0'
+                  }}</strong>
+                } @else {
+                {{ getSelectedFsAmount() | currency:'PKR ':'symbol':'1.0-0' }} ×
+                {{ MULTIPLIER_LABEL[rowForm.get('billingFrequency')?.value ?? 'default'] }} =
+                <strong>{{ calcPreviewAmount() | currency:'PKR ':'symbol':'1.0-0' }}</strong>
+                }
+                per {{ rowForm.get('billingFrequency')?.value }}
+              </span>
+            </div>
+            }
+
+            <div class="flex-end">
+              @if (editingIndex() !== null) {
+              <button mat-stroked-button type="button" (click)="cancelEdit()">Cancel</button>
+              }
+              <button mat-flat-button color="accent" type="submit" [disabled]="rowForm.invalid">
+                <mat-icon>{{ editingIndex() !== null ? 'save' : 'add' }}</mat-icon>
+                {{ editingIndex() !== null ? 'Update Row' : 'Add to Plan' }}
+              </button>
+            </div>
+          </form>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Save -->
+      @if (planRows().length) {
+      <div class="flex-end">
+        <button mat-flat-button color="primary" (click)="savePlan()" [disabled]="saving()">
+          @if (saving()) { <mat-spinner diameter="18" /> } @else { <mat-icon>save</mat-icon> }
+          Save Fee Plan ({{ planRows().length }} item{{ planRows().length !== 1 ? 's' : '' }})
+        </button>
+      </div>
+      }
+      }
+      }
+    </div>
+
+    <!-- RIGHT: Preview panel -->
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <mat-card>
+        <mat-card-header><mat-card-title>How It Works</mat-card-title></mat-card-header>
+        <mat-card-content>
+          <div style="display:flex;flex-direction:column;gap:14px;margin-top:8px">
+            @for (ex of examples; track ex.freq) {
+            <div class="example-row">
+              <div style="font-size:.8rem;font-weight:600;color:#0f172a">{{ ex.freq }}</div>
+              <div style="font-size:.75rem;color:#64748b">{{ ex.desc }}</div>
+              <div style="font-size:.875rem;font-weight:700;color:#2563eb">{{ ex.amount }}</div>
+            </div>
+            }
+          </div>
+          <p style="font-size:.75rem;color:#94a3b8;margin-top:12px">
+            Base tuition = PKR 8,500/month. Students with no plan use class-level defaults.
+          </p>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Live server preview (after save) -->
+      @if (serverPreview()) {
+      <mat-card>
+        <mat-card-header><mat-card-title>Invoice Preview</mat-card-title><mat-card-subtitle>From
+            server</mat-card-subtitle></mat-card-header>
+        <mat-card-content>
+          @if (serverPreview()!.hasPlan) {
+          @for (p of serverPreview()!.plans; track p.feeStructureName) {
+          <div class="prev-row">
+            <span>{{ p.feeStructureName }}</span>
+            <span style="font-weight:700">{{ p.billedAmount | currency:'PKR ':'symbol':'1.0-0' }}</span>
+          </div>
+          }
+          <mat-divider class="mt-2 mb-2" />
+          <div class="prev-row">
+            <strong>Total</strong>
+            <strong style="color:#2563eb">{{ serverPreview()!.totalAmount | currency:'PKR ':'symbol':'1.0-0' }}</strong>
+          </div>
+          } @else {
+          <p style="color:#94a3b8;font-size:.875rem">No plan — using class defaults</p>
+          }
+        </mat-card-content>
+      </mat-card>
+      }
+    </div>
+  </div>
+</div>

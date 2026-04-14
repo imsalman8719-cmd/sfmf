@@ -34,3 +34,51 @@ export interface TargetVsActual { academicYear:string; annual:{target:number;col
 export interface MonthlyData { month:number; monthName:string; target:number; invoiced:number; collected:number; shortfall:number; surplus:number; achievementRate:string; }
 export interface QuarterlyData { quarter:string; months:string; target:number; invoiced:number; collected:number; shortfall:number; achievementRate:string; }
 export interface Defaulter { studentId:string; registrationNumber:string; firstName:string; lastName:string; email:string; fatherPhone?:string; fatherName?:string; className:string; grade:string; totalDue:number; totalBilled:number; totalPaid:number; pendingInvoices:number; oldestDueDate:string; }
+
+// Settings
+export interface GlobalSettings {
+  id: string;
+  monthlyInvoiceDay: number;
+  quarterlyInvoiceDaysBefore: number;
+  semiAnnualInvoiceDaysBefore: number;
+  annualInvoiceDaysBefore: number;
+  defaultDueDays: number;
+  autoInvoiceEnabled: boolean;
+  autoOverdueMarkingEnabled: boolean;
+  autoReminderEnabled: boolean;
+  reminderDaysBeforeDue: number;
+  schoolName?: string;
+  schoolAddress?: string;
+  schoolPhone?: string;
+  currencySymbol: string;
+  updatedAt?: string;
+  updatedBy?: string;
+}
+
+// Student Fee Plan
+export interface StudentFeePlan {
+  id: string;
+  studentId: string;
+  student?: Student;
+  feeStructureId: string;
+  feeStructure?: FeeStructure;
+  academicYearId: string;
+  academicYear?: AcademicYear;
+  billingFrequency: FeeFrequency;
+  customAmount?: number | null;
+  isActive: boolean;
+  notes?: string;
+  createdAt: string;
+}
+
+export interface FeePlanPreview {
+  hasPlan: boolean;
+  plans: Array<{
+    feeStructureName: string;
+    billingFrequency: FeeFrequency;
+    baseAmount: number;
+    billedAmount: number;
+    multiplier: number;
+  }>;
+  totalAmount: number;
+}
