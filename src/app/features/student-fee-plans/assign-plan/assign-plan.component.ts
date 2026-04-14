@@ -59,7 +59,7 @@ const MULTIPLIER_LABEL: Record<string, string> = {
     MatDividerModule, MatTableModule, MatTooltipModule, MatChipsModule
   ],
   templateUrl: './assign-plan.component.html',
-  styles: [`./assign-plan.component.scss`]
+  styleUrl:'./assign-plan.component.scss'
 })
 export class AssignPlanComponent implements OnInit {
   private api: ApiService = inject(ApiService);
@@ -219,7 +219,21 @@ export class AssignPlanComponent implements OnInit {
 
   cancelEdit() { this.editingIndex.set(null); this.rowForm.reset({ billingFrequency: FeeFrequency.MONTHLY }); }
 
-  removeRow(i: number) { this.planRows.update(rows => rows.filter((_, idx) => idx !== i)); }
+  removeRow(i: number) {
+    const row = this.planRows()[i];
+    if (row.id) {
+      this.api.delete(`/student-fee-plans/${row.id}`).subscribe({
+        next: () => {
+          this.snackBar.open('Plan removed successfully', 'OK', { duration: 3000 });
+          this.planRows.update(rows => rows.filter((_, idx) => idx !== i));
+          if (this.student() && this.yearCtrl.value) this.loadPreview(this.student()!.id, this.yearCtrl.value);
+        },
+        error: () => this.snackBar.open('Failed to remove plan from server', 'OK')
+      });
+    } else {
+      this.planRows.update(rows => rows.filter((_, idx) => idx !== i));
+    }
+  }
 
   calcAmount(row: StudentFeePlan): number {
     if (row.customAmount) return row.customAmount;

@@ -109,7 +109,7 @@ import { StatusLabelPipe } from '../../../shared/pipes/status-label.pipe';
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef></th>
             <td mat-cell *matCellDef="let s">
-              <button mat-icon-button [routerLink]="[s.id]" matTooltip="View"><mat-icon>visibility</mat-icon></button>
+              <button mat-icon-button [routerLink]="[s.id,'details']" matTooltip="View"><mat-icon>visibility</mat-icon></button>
               @if (auth.hasRole(UserRole.SUPER_ADMIN, UserRole.ADMISSION)) {
                 <button mat-icon-button [routerLink]="[s.id,'edit']" matTooltip="Edit"><mat-icon>edit</mat-icon></button>
               }

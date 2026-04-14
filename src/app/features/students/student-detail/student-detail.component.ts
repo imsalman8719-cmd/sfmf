@@ -12,11 +12,11 @@ import { ApiService } from '../../../core/services/api.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { Student, FeeInvoice, UserRole, InvoiceStatus } from '../../../core/models';
 import { StatusLabelPipe } from '../../../shared/pipes/status-label.pipe';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 @Component({
   selector: 'app-student-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, MatCardModule, MatTabsModule, MatIconModule, MatButtonModule, MatDividerModule, MatTableModule, MatProgressBarModule, StatusLabelPipe,BrowserAnimationsModule],
+  imports: [CommonModule, RouterLink, MatCardModule, MatTabsModule,
+     MatIconModule, MatButtonModule, MatDividerModule, MatTableModule, MatProgressBarModule, StatusLabelPipe],
   template: `
     <div class="page-container">
       @if (student()) {

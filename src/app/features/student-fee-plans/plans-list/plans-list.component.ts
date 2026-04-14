@@ -14,6 +14,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatCardModule } from '@angular/material/card';
 import { ApiService } from '../../../core/services/api.service';
 import { AcademicYear } from '../../../core/models';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
 
 @Component({
   selector: 'app-plans-list',
@@ -57,14 +58,37 @@ export class PlansListComponent implements OnInit {
   ngOnInit() {
     this.api.get<any>('/academic-years').subscribe(r => this.years.set(Array.isArray(r) ? r : r.data || []));
     this.load();
-    [this.searchCtrl, this.yearCtrl, this.freqCtrl].forEach(c => c.valueChanges.subscribe(() => { }));
+
+    // Trigger reload when search text changes (debounced to avoid spamming the server)
+    this.searchCtrl.valueChanges.pipe(
+      debounceTime(400),
+      distinctUntilChanged()
+    ).subscribe(() => this.load());
+
+    // Trigger reload immediately for dropdown filters
+    this.yearCtrl.valueChanges.subscribe(() => this.load());
+    this.freqCtrl.valueChanges.subscribe(() => this.load());
   }
 
   load() {
     this.loading.set(true);
-    // Fetch all plans — there's no paginated endpoint so we get all
-    this.api.get<any[]>('/student-fee-plans/student/all').subscribe({
-      next: p => { this.plans.set(Array.isArray(p) ? p : (p as any).data || []); this.loading.set(false); },
+    const params: any = {
+      page: 1,
+      limit: 20,
+      sortBy: 'createdAt',
+      sortOrder: 'DESC'
+    };
+
+    if (this.searchCtrl.value) params.search = this.searchCtrl.value;
+    if (this.yearCtrl.value) params.academicYearId = this.yearCtrl.value;
+    if (this.freqCtrl.value) params.billingFrequency = this.freqCtrl.value;
+
+    this.api.get<any>('/student-fee-plans', params).subscribe({
+      next: res => {
+        const data = res.data?.items || res.data || [];
+        this.plans.set(Array.isArray(data) ? data : []);
+        this.loading.set(false);
+      },
       error: () => this.loading.set(false)
     });
   }
