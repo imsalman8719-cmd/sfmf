@@ -90,18 +90,18 @@ export class AssignPlanComponent implements OnInit {
   });
 
   frequencies = [
-    { v: FeeFrequency.MONTHLY, l: 'Monthly (×1)' },
-    { v: FeeFrequency.QUARTERLY, l: 'Quarterly (×3)' },
+    { v: FeeFrequency.MONTHLY,     l: 'Monthly (×1)' },
+    { v: FeeFrequency.QUARTERLY,   l: 'Quarterly (×3)' },
     { v: FeeFrequency.SEMI_ANNUAL, l: 'Semi-Annual (×6)' },
-    { v: FeeFrequency.ANNUAL, l: 'Annual (×12)' },
-    { v: FeeFrequency.ONE_TIME, l: 'One-Time' },
+    { v: FeeFrequency.ANNUAL,      l: 'Annual (×12)' },
+    { v: FeeFrequency.ONE_TIME,    l: 'One-Time' },
   ];
 
   examples = [
-    { freq: 'Monthly', desc: '8,500 × 1 — pay each month', amount: 'PKR 8,500' },
-    { freq: 'Quarterly', desc: '8,500 × 3 — pay every 3 months', amount: 'PKR 25,500' },
-    { freq: 'Semi-Annual', desc: '8,500 × 6 — pay every 6 months', amount: 'PKR 51,000' },
-    { freq: 'Annual', desc: '8,500 × 12 — pay full year', amount: 'PKR 1,02,000' },
+    { freq: 'Monthly',    desc: '8,500 × 1 — pay each month',    amount: 'PKR 8,500' },
+    { freq: 'Quarterly',  desc: '8,500 × 3 — pay every 3 months', amount: 'PKR 25,500' },
+    { freq: 'Semi-Annual',desc: '8,500 × 6 — pay every 6 months', amount: 'PKR 51,000' },
+    { freq: 'Annual',     desc: '8,500 × 12 — pay full year',     amount: 'PKR 1,02,000' },
   ];
 
   availableFeeStructures() {
@@ -173,7 +173,7 @@ export class AssignPlanComponent implements OnInit {
         this.planRows.set(rows);
         if (rows.length) this.loadPreview(studentId, yearId);
       },
-      error: () => { }
+      error: () => {}
     });
   }
 
@@ -288,6 +288,11 @@ export class AssignPlanComponent implements OnInit {
       this.snackBar.open('Fee plan saved!', 'OK', { duration: 4000 });
       this.saving.set(false);
       this.loadExistingPlan(student.id, yearId);
+      // Trigger fee target recalculation for the academic year
+      this.api.post(`/academic-years/${yearId}/recalculate-targets`, {}).subscribe({
+        next: () => console.log('[FeePlans] Targets recalculated'),
+        error: () => {} // Non-blocking
+      });
     }).catch(e => {
       this.snackBar.open(e?.message || 'Error saving plan', 'Close');
       this.saving.set(false);

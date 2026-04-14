@@ -7,12 +7,17 @@ import { ApiResponse, PaginatedResult, PaginationParams } from '../models';
 @Injectable({ providedIn: 'root' })
 export class ApiService {
   private readonly BASE = environment.apiUrl;
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   get<T>(path: string, params?: Record<string, any>): Observable<T> {
     let httpParams = new HttpParams();
-    if (params) Object.entries(params).forEach(([k, v]) => { if (v !== undefined && v !== null && v !== '') httpParams = httpParams.set(k, v); });
-    return this.http.get<ApiResponse<T>>(`${this.BASE}${path}`, { params: httpParams }).pipe(map(r => r.data));
+    if (params) Object.entries(params).forEach(([k, v]) => {
+      if (v !== undefined && v !== null && v !== '') httpParams = httpParams.set(k, v);
+    });
+
+    return this.http.get<any>(`${this.BASE}${path}`, { params: httpParams }).pipe(
+      map(r => r?.data ?? r) // ✅ FIX
+    );
   }
 
   getPaginated<T>(path: string, pagination: PaginationParams, filters?: Record<string, any>): Observable<PaginatedResult<T>> {
