@@ -15,59 +15,35 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatStepperModule } from '@angular/material/stepper';
-import { MatTabsModule } from '@angular/material/tabs';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ApiService } from '../../../core/services/api.service';
-import { AcademicYear, SchoolClass, AdmissionStatus } from '../../../core/models';
+import { AcademicYear, SchoolClass, FeeStructure, FeeFrequency, AdmissionStatus } from '../../../core/models';
 
-// Custom Validators
-function emailValidator(control: AbstractControl): ValidationErrors | null {
-  const value = control.value;
-  if (!value) return null;
-  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-  return emailRegex.test(value) ? null : { email: 'email must be an email' };
+function emailValidator(c: AbstractControl): ValidationErrors | null {
+  const v = c.value; if (!v) return null;
+  return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(v) ? null : { email: 'Must be a valid email' };
 }
-
-function isoDateValidator(control: AbstractControl): ValidationErrors | null {
-  const value = control.value;
-  if (!value) return null;
-  
-  // Check if it's a Date object
-  if (value instanceof Date) {
-    // Valid Date object
-    return null;
-  }
-  
-  // Check if it's a string in ISO 8601 format
-  const isoRegex = /^\d{4}-\d{2}-\d{2}$/;
-  if (typeof value === 'string' && isoRegex.test(value)) {
-    const date = new Date(value);
-    if (!isNaN(date.getTime())) {
-      return null;
-    }
-  }
-  
-  return { dateOfBirth: 'dateOfBirth must be a valid ISO 8601 date string' };
+function isoDateValidator(c: AbstractControl): ValidationErrors | null {
+  const v = c.value; if (!v || v instanceof Date) return null;
+  return /^\d{4}-\d{2}-\d{2}$/.test(v) ? null : { dateOfBirth: 'Invalid date' };
 }
-
-function uuidValidator(control: AbstractControl): ValidationErrors | null {
-  const value = control.value;
-  if (!value) return null;
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-  return uuidRegex.test(value) ? null : { classId: 'classId must be a UUID' };
+function uuidValidator(c: AbstractControl): ValidationErrors | null {
+  const v = c.value; if (!v) return null;
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v) ? null : { classId: 'Must be a valid UUID' };
 }
 
 @Component({
   selector: 'app-student-form',
   standalone: true,
-  
   imports: [
     CommonModule, RouterLink, ReactiveFormsModule,
     MatCardModule, MatFormFieldModule, MatInputModule, MatButtonModule,
     MatIconModule, MatSelectModule, MatDatepickerModule, MatNativeDateModule,
     MatCheckboxModule, MatDividerModule, MatProgressSpinnerModule,
-    MatStepperModule, MatTabsModule
+    MatStepperModule, MatChipsModule, MatTooltipModule,
   ],
-  templateUrl: './student-form.component.html',   
+  templateUrl: './student-form.component.html',
   styleUrls: ['./student-form.component.scss'],
 })
 export class StudentFormComponent implements OnInit {
@@ -82,62 +58,71 @@ export class StudentFormComponent implements OnInit {
   saving = signal(false);
   years = signal<AcademicYear[]>([]);
   classes = signal<SchoolClass[]>([]);
+  availableFeeStructures = signal<FeeStructure[]>([]);
   statuses = Object.values(AdmissionStatus);
 
+  readonly frequencies = [
+    { value: FeeFrequency.MONTHLY,     label: 'Monthly',     desc: 'One invoice per month',                    icon: 'event_repeat' },
+    { value: FeeFrequency.QUARTERLY,   label: 'Quarterly',   desc: 'One invoice every 3 months (amount ×3)',   icon: 'date_range' },
+    { value: FeeFrequency.SEMI_ANNUAL, label: 'Semi-Annual', desc: 'One invoice every 6 months (amount ×6)',   icon: 'calendar_view_month' },
+    { value: FeeFrequency.ANNUAL,      label: 'Annual',      desc: 'Single invoice for the full year (×12)',   icon: 'calendar_today' },
+  ];
+
   accountForm = this.fb.group({
-    firstName: ['', Validators.required],
-    lastName: ['', Validators.required],
-    email: ['', [Validators.required, emailValidator]],
-    password: [''],
-    phone: [''],
-    gender: [''],
+    firstName:   ['', Validators.required],
+    lastName:    ['', Validators.required],
+    email:       ['', [Validators.required, emailValidator]],
+    password:    [''],
+    phone:       [''],
+    gender:      [''],
     dateOfBirth: ['', isoDateValidator],
-    address: ['']
+    address:     [''],
   });
 
   academicForm = this.fb.group({
-    academicYearId: ['', Validators.required],
-    classId: ['', uuidValidator],
-    rollNumber: [''],
+    academicYearId:  ['', Validators.required],
+    classId:         ['', uuidValidator],
+    rollNumber:      [''],
     admissionStatus: [AdmissionStatus.ADMITTED],
-    admissionDate: [new Date()],
-    previousSchool: [''],
-    bloodGroup: [''],
-    nationality: [''],
+    admissionDate:   [new Date()],
+    previousSchool:  [''],
+    bloodGroup:      [''],
+    nationality:     [''],
     transportRequired: [false],
-    hostelRequired: [false],
-    hasSiblings: [false]
+    hostelRequired:    [false],
+    hasSiblings:       [false],
   });
 
   guardianForm = this.fb.group({
-    fatherName: [''],
-    fatherPhone: [''],
-    fatherEmail: ['', emailValidator],
-    motherName: [''],
-    motherPhone: [''],
+    fatherName:       [''],
+    fatherPhone:      [''],
+    fatherEmail:      ['', emailValidator],
+    motherName:       [''],
+    motherPhone:      [''],
     emergencyContact: [''],
-    notes: ['']
+    notes:            [''],
+  });
+
+  feeForm = this.fb.group({
+    billingFrequency:        [FeeFrequency.MONTHLY, Validators.required],
+    selectedFeeStructureIds: [[] as string[]],
   });
 
   ngOnInit() {
     this.studentId = this.route.snapshot.params['id'];
     this.isEdit = !!this.studentId;
-    
-    // Set password validator only for create mode, remove for edit mode
-    if (!this.isEdit) {
-      this.accountForm.get('password')?.setValidators(Validators.required);
-    } else {
-      this.accountForm.get('password')?.clearValidators();
-    }
+
+    if (!this.isEdit) this.accountForm.get('password')?.setValidators(Validators.required);
     this.accountForm.get('password')?.updateValueAndValidity();
 
     this.api.get<any>('/academic-years').subscribe(r => {
       const years = Array.isArray(r) ? r : r.data || [];
       this.years.set(years);
       const current = years.find((y: AcademicYear) => y.isCurrent);
-      if (current) { 
-        this.academicForm.patchValue({ academicYearId: current.id }); 
-        this.loadClasses(current.id); 
+      if (current) {
+        this.academicForm.patchValue({ academicYearId: current.id });
+        this.loadClasses(current.id);
+        this.loadOptionalFees(current.id);
       }
     });
 
@@ -146,13 +131,19 @@ export class StudentFormComponent implements OnInit {
         this.accountForm.patchValue(s.user || {});
         this.academicForm.patchValue(s);
         this.guardianForm.patchValue(s);
-        if (s.academicYearId) this.loadClasses(s.academicYearId);
+        this.feeForm.patchValue({
+          billingFrequency: s.billingFrequency || FeeFrequency.MONTHLY,
+          selectedFeeStructureIds: s.selectedFeeStructureIds || [],
+        });
+        if (s.academicYearId) { this.loadClasses(s.academicYearId); this.loadOptionalFees(s.academicYearId); }
       });
     }
   }
 
-  onYearChange(yearId: string) { 
-    this.loadClasses(yearId); 
+  onYearChange(yearId: string) {
+    this.loadClasses(yearId);
+    this.loadOptionalFees(yearId);
+    this.feeForm.patchValue({ selectedFeeStructureIds: [] });
   }
 
   loadClasses(yearId: string) {
@@ -160,121 +151,68 @@ export class StudentFormComponent implements OnInit {
       .subscribe(r => this.classes.set(r.data));
   }
 
-  // Helper method to format dates to ISO string before submission
-  private formatDateToISO(date: any): string | null {
-    if (!date) return null;
-    if (date instanceof Date && !isNaN(date.getTime())) {
-      return date.toISOString().split('T')[0];
-    }
-    if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
-      return date;
-    }
+  loadOptionalFees(yearId: string) {
+    this.api.getPaginated<FeeStructure>('/fee-structures', { limit: 100 }, { academicYearId: yearId, isActive: 'true', isMandatory: 'false' })
+      .subscribe(r => this.availableFeeStructures.set(r.data));
+  }
+
+  isFeeSelected(id: string): boolean {
+    return (this.feeForm.value.selectedFeeStructureIds || []).includes(id);
+  }
+
+  toggleFee(id: string) {
+    const current = [...(this.feeForm.value.selectedFeeStructureIds || [])];
+    const idx = current.indexOf(id);
+    idx >= 0 ? current.splice(idx, 1) : current.push(id);
+    this.feeForm.patchValue({ selectedFeeStructureIds: current });
+  }
+
+  categoryIcon(cat: string): string {
+    const m: Record<string, string> = { library: 'menu_book', transport: 'directions_bus', laboratory: 'science', sports: 'sports_soccer', hostel: 'hotel', exam: 'assignment', uniform: 'checkroom', miscellaneous: 'more_horiz' };
+    return m[cat] || 'attach_money';
+  }
+
+  private formatDate(d: any): string | null {
+    if (!d) return null;
+    if (d instanceof Date && !isNaN(d.getTime())) return d.toISOString().split('T')[0];
+    if (typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d)) return d;
     return null;
   }
 
-  // Helper method to remove empty values from object
-  private removeEmptyValues(obj: any): any {
-    const cleanedObj: any = {};
-    
-    for (const key in obj) {
-      const value = obj[key];
-      
-      // Skip null, undefined, empty string
-      if (value === null || value === undefined) {
-        continue;
-      }
-      
-      // Skip empty strings
-      if (typeof value === 'string' && value.trim() === '') {
-        continue;
-      }
-      
-      // Skip empty arrays
-      if (Array.isArray(value) && value.length === 0) {
-        continue;
-      }
-      
-      // Keep false boolean values (they are valid)
-      if (typeof value === 'boolean') {
-        cleanedObj[key] = value;
-        continue;
-      }
-      
-      // Keep numbers (including 0)
-      if (typeof value === 'number') {
-        cleanedObj[key] = value;
-        continue;
-      }
-      
-      // Keep non-empty strings and other values
-      cleanedObj[key] = value;
+  private clean(obj: any): any {
+    const out: any = {};
+    for (const k in obj) {
+      const v = obj[k];
+      if (v === null || v === undefined) continue;
+      if (typeof v === 'string' && !v.trim()) continue;
+      if (Array.isArray(v) && !v.length && k !== 'selectedFeeStructureIds') continue;
+      out[k] = v;
     }
-    
-    return cleanedObj;
+    return out;
   }
 
   submit() {
     if (this.accountForm.invalid || this.academicForm.invalid) {
-      // Show validation errors
-      Object.keys(this.accountForm.controls).forEach(key => {
-        const control = this.accountForm.get(key);
-        if (control?.invalid) {
-          control.markAsTouched();
-        }
-      });
-      Object.keys(this.academicForm.controls).forEach(key => {
-        const control = this.academicForm.get(key);
-        if (control?.invalid) {
-          control.markAsTouched();
-        }
-      });
+      this.accountForm.markAllAsTouched(); this.academicForm.markAllAsTouched();
       this.snackBar.open('Please fix validation errors', 'Close', { duration: 3000 });
       return;
     }
-    
     this.saving.set(true);
-    
-    // Format dates to ISO 8601 strings
-    const formattedAccount = {
-      ...this.accountForm.value,
-      dateOfBirth: this.formatDateToISO(this.accountForm.value.dateOfBirth)
-    };
-    
-    const formattedAcademic = {
-      ...this.academicForm.value,
-      admissionDate: this.formatDateToISO(this.academicForm.value.admissionDate)
-    };
-    
-    // Merge all data
-    let payload = { 
-      ...formattedAccount, 
-      ...formattedAcademic, 
-      ...this.guardianForm.value 
-    };
-    
-    // Remove password field for edit mode
-    if (this.isEdit) {
-      delete payload.password;
-    }
-    
-    // Remove empty values from payload
-    payload = this.removeEmptyValues(payload);
-    
-    console.log('Final payload to send:', payload); // Debug log
-    
-    const req = this.isEdit
-      ? this.api.put(`/students/${this.studentId}`, payload)
-      : this.api.post('/students', payload);
+    let payload = this.clean({
+      ...this.accountForm.value, ...this.academicForm.value,
+      ...this.guardianForm.value, ...this.feeForm.value,
+      dateOfBirth:   this.formatDate(this.accountForm.value.dateOfBirth),
+      admissionDate: this.formatDate(this.academicForm.value.admissionDate),
+    });
+    if (this.isEdit) delete payload.password;
 
+    const req = this.isEdit ? this.api.put(`/students/${this.studentId}`, payload) : this.api.post('/students', payload);
     req.subscribe({
-      next: () => { 
-        this.snackBar.open(this.isEdit ? 'Student updated' : 'Student enrolled', 'OK', { duration: 3000 }); 
-        this.router.navigate(['/students']); 
+      next: () => {
+        this.snackBar.open(this.isEdit ? 'Student updated' : 'Student enrolled — year invoices generated!', 'OK', { duration: 5000 });
+        this.router.navigate(['/students']);
       },
-      error: (e) => { 
-        this.snackBar.open(e.error?.message || e.message || 'Error saving student', 'Close', { duration: 5000 }); 
-        this.saving.set(false); 
-      }
+      error: e => { this.snackBar.open(e.error?.message || e.message || 'Error', 'Close', { duration: 5000 }); this.saving.set(false); },
     });
   }
 }

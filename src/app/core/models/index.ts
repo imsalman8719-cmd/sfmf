@@ -18,7 +18,42 @@ export interface User { id: string; firstName: string; lastName: string; email: 
 export interface AuthResponse { user: { id: string; email: string; firstName: string; lastName: string; role: UserRole; isFirstLogin: boolean; avatarUrl?: string; }; accessToken: string; refreshToken: string; }
 export interface AcademicYear { id: string; name: string; startDate: string; endDate: string; isCurrent: boolean; description?: string; feeTarget: number; monthlyTargets?: Record<string,number>; quarterlyTargets?: Record<string,number>; createdAt: string; }
 export interface SchoolClass { id: string; name: string; grade: string; section?: string; description?: string; maxCapacity: number; isActive: boolean; academicYearId: string; academicYear?: AcademicYear; classTeacherId?: string; classTeacher?: User; createdAt: string; }
-export interface Student { id: string; userId: string; user?: User; registrationNumber: string; rollNumber?: string; classId?: string; class?: SchoolClass; academicYearId: string; academicYear?: AcademicYear; admissionDate?: string; admissionStatus: AdmissionStatus; fatherName?: string; fatherPhone?: string; fatherEmail?: string; motherName?: string; motherPhone?: string; guardianName?: string; guardianPhone?: string; hasSiblings: boolean; siblingDiscountEligible: boolean; isActive: boolean; transportRequired: boolean; hostelRequired: boolean; bloodGroup?: string; nationality?: string; notes?: string; createdAt: string; previousSchool?: string;  }
+
+export interface Student {
+  id: string;
+  userId: string;
+  user?: User;
+  registrationNumber: string;
+  rollNumber?: string;
+  classId?: string;
+  class?: SchoolClass;
+  academicYearId: string;
+  academicYear?: AcademicYear;
+  admissionDate?: string;
+  admissionStatus: AdmissionStatus;
+  // Fee preference — drives invoice generation on registration
+  billingFrequency: FeeFrequency;
+  selectedFeeStructureIds: string[];
+  // Guardian
+  fatherName?: string;
+  fatherPhone?: string;
+  fatherEmail?: string;
+  motherName?: string;
+  motherPhone?: string;
+  guardianName?: string;
+  guardianPhone?: string;
+  hasSiblings: boolean;
+  siblingDiscountEligible: boolean;
+  isActive: boolean;
+  transportRequired: boolean;
+  hostelRequired: boolean;
+  bloodGroup?: string;
+  nationality?: string;
+  notes?: string;
+  createdAt: string;
+  previousSchool?: string;
+}
+
 export interface FeeStructure { id: string; name: string; description?: string; category: FeeCategory; frequency: FeeFrequency; amount: number; academicYearId: string; academicYear?: AcademicYear; classId?: string; class?: SchoolClass; isMandatory: boolean; isActive: boolean; dueDayOfMonth?: number; dueDate?: string; lateFeeEnabled: boolean; lateFeeType?: DiscountType; lateFeeValue?: number; gracePeriodDays: number; sortOrder: number; createdAt: string; }
 export interface Discount { id: string; name: string; description?: string; category: DiscountCategory; type: DiscountType; value: number; studentId?: string; student?: Student; feeStructureId?: string; feeStructure?: FeeStructure; academicYearId: string; validFrom?: string; validUntil?: string; isActive: boolean; approvedBy?: string; createdAt: string; }
 export interface LineItem { feeStructureId: string; feeName: string; category: string; amount: number; discountAmount: number; netAmount: number; }
@@ -35,50 +70,4 @@ export interface MonthlyData { month:number; monthName:string; target:number; in
 export interface QuarterlyData { quarter:string; months:string; target:number; invoiced:number; collected:number; shortfall:number; achievementRate:string; }
 export interface Defaulter { studentId:string; registrationNumber:string; firstName:string; lastName:string; email:string; fatherPhone?:string; fatherName?:string; className:string; grade:string; totalDue:number; totalBilled:number; totalPaid:number; pendingInvoices:number; oldestDueDate:string; }
 
-// Settings
-export interface GlobalSettings {
-  id: string;
-  monthlyInvoiceDay: number;
-  quarterlyInvoiceDaysBefore: number;
-  semiAnnualInvoiceDaysBefore: number;
-  annualInvoiceDaysBefore: number;
-  defaultDueDays: number;
-  autoInvoiceEnabled: boolean;
-  autoOverdueMarkingEnabled: boolean;
-  autoReminderEnabled: boolean;
-  reminderDaysBeforeDue: number;
-  schoolName?: string;
-  schoolAddress?: string;
-  schoolPhone?: string;
-  currencySymbol: string;
-  updatedAt?: string;
-  updatedBy?: string;
-}
-
-// Student Fee Plan
-export interface StudentFeePlan {
-  id: string;
-  studentId: string;
-  student?: Student;
-  feeStructureId: string;
-  feeStructure?: FeeStructure;
-  academicYearId: string;
-  academicYear?: AcademicYear;
-  billingFrequency: FeeFrequency;
-  customAmount?: number | null;
-  isActive: boolean;
-  notes?: string;
-  createdAt: string;
-}
-
-export interface FeePlanPreview {
-  hasPlan: boolean;
-  plans: Array<{
-    feeStructureName: string;
-    billingFrequency: FeeFrequency;
-    baseAmount: number;
-    billedAmount: number;
-    multiplier: number;
-  }>;
-  totalAmount: number;
-}
+export interface GlobalSettings { id: string; monthlyInvoiceDay: number; quarterlyInvoiceDaysBefore: number; semiAnnualInvoiceDaysBefore: number; annualInvoiceDaysBefore: number; defaultDueDays: number; autoInvoiceEnabled: boolean; autoOverdueMarkingEnabled: boolean; autoReminderEnabled: boolean; reminderDaysBeforeDue: number; schoolName?: string; schoolAddress?: string; schoolPhone?: string; currencySymbol: string; updatedAt?: string; updatedBy?: string; }

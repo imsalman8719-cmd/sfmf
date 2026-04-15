@@ -1,11 +1,104 @@
-.step-card {
-    margin-bottom: 16px
+.step-card { margin-bottom: 16px; }
+.step-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 16px; padding: 0 4px; }
+.section-sub { font-weight: 600; margin-bottom: 12px; color: #475569; font-size: .875rem; }
+
+/* Billing frequency grid */
+.freq-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-top: 8px;
+
+  @media (max-width: 800px) { grid-template-columns: repeat(2, 1fr); }
 }
 
-.step-actions {
-    display: flex;
-    gap: 12px;
-    justify-content: flex-end;
-    margin-top: 16px;
-    padding: 0 4px
+.freq-card {
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px 12px;
+  cursor: pointer;
+  text-align: center;
+  transition: all .15s;
+  background: #fff;
+
+  &:hover { border-color: #93c5fd; background: #f0f9ff; }
+
+  .freq-icon { font-size: 28px; height: 28px; width: 28px; color: #94a3b8; margin-bottom: 8px; }
+  .freq-title { font-weight: 700; font-size: .9rem; color: #0f172a; }
+  .freq-desc  { font-size: .72rem; color: #64748b; margin-top: 4px; line-height: 1.4; }
+}
+
+.freq-selected {
+  border-color: #2563eb !important;
+  background: #eff6ff !important;
+
+  .freq-icon { color: #2563eb; }
+  .freq-title { color: #1d4ed8; }
+}
+
+/* Invoice schedule preview */
+.preview-box {
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.preview-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: #dcfce7;
+  font-weight: 600;
+  font-size: .875rem;
+  color: #15803d;
+  mat-icon { font-size: 18px; }
+}
+.preview-body { padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+.preview-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: .8rem;
+  color: #374151;
+  .pi { font-size: 16px; flex-shrink: 0; color: #16a34a; margin-top: 1px; }
+  .pi.info { color: #2563eb; }
+}
+
+/* Optional services */
+.pref-label { font-weight: 600; color: #475569; margin-bottom: 4px; font-size: .9rem; }
+.pref-sub   { font-size: .8rem; color: #94a3b8; margin-bottom: 14px; }
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 10px;
+}
+
+.service-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all .15s;
+  background: #fff;
+
+  &:hover { border-color: #93c5fd; background: #f0f9ff; }
+
+  .svc-left { display: flex; align-items: center; gap: 10px; }
+  .svc-icon { color: #64748b; font-size: 22px; }
+  .svc-name { font-weight: 600; font-size: .875rem; }
+  .svc-meta { font-size: .72rem; color: #64748b; text-transform: capitalize; margin-top: 2px; }
+  .check-icon { color: #d1d5db; font-size: 22px; }
+}
+
+.service-selected {
+  border-color: #2563eb !important;
+  background: #eff6ff !important;
+
+  .svc-icon   { color: #2563eb; }
+  .check-icon { color: #2563eb; }
 }

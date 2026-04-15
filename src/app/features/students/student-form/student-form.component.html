@@ -1,238 +1,272 @@
 <div class="page-container">
-    <div class="flex-between mb-6">
-        <div>
-            <h1 class="section-title">{{ isEdit ? 'Edit Student' : 'Enroll New Student' }}</h1>
-            <p class="section-subtitle">{{ isEdit ? 'Update student information' : 'Create student account and profile'
-                }}</p>
-        </div>
-        <button mat-stroked-button routerLink="/students"><mat-icon>arrow_back</mat-icon> Back</button>
+  <div class="flex-between mb-6">
+    <div>
+      <h1 class="section-title">{{ isEdit ? 'Edit Student' : 'Enroll New Student' }}</h1>
+      <p class="section-subtitle">{{ isEdit ? 'Update student information' : 'Create account and auto-generate year invoices' }}</p>
     </div>
+    <button mat-stroked-button routerLink="/students"><mat-icon>arrow_back</mat-icon> Back</button>
+  </div>
 
-    <mat-stepper linear #stepper orientation="horizontal">
+  <mat-stepper linear #stepper orientation="horizontal">
 
-        <!-- Step 1: Account -->
-        <mat-step [stepControl]="accountForm" label="Account Info">
-            <form [formGroup]="accountForm">
-                <mat-card class="step-card">
-                    <mat-card-header><mat-card-title>Login Account</mat-card-title></mat-card-header>
-                    <mat-card-content>
-                        <div class="form-grid-2">
-                            <mat-form-field>
-                                <mat-label>First Name *</mat-label>
-                                <input matInput formControlName="firstName">
-                                <mat-error *ngIf="accountForm.get('firstName')?.hasError('required')">First name is
-                                    required</mat-error>
-                            </mat-form-field>
+    <!-- Step 1: Account -->
+    <mat-step [stepControl]="accountForm" label="Account Info">
+      <form [formGroup]="accountForm">
+        <mat-card class="step-card">
+          <mat-card-header><mat-card-title>Login Account</mat-card-title></mat-card-header>
+          <mat-card-content>
+            <div class="form-grid-2">
+              <mat-form-field>
+                <mat-label>First Name *</mat-label>
+                <input matInput formControlName="firstName">
+                <mat-error>First name is required</mat-error>
+              </mat-form-field>
+              <mat-form-field>
+                <mat-label>Last Name *</mat-label>
+                <input matInput formControlName="lastName">
+                <mat-error>Last name is required</mat-error>
+              </mat-form-field>
+              <mat-form-field>
+                <mat-label>Email *</mat-label>
+                <input matInput type="email" formControlName="email">
+                <mat-error>Must be a valid email</mat-error>
+              </mat-form-field>
+              @if (!isEdit) {
+                <mat-form-field>
+                  <mat-label>Password *</mat-label>
+                  <input matInput type="password" formControlName="password">
+                  <mat-error>Password is required</mat-error>
+                </mat-form-field>
+              }
+              <mat-form-field>
+                <mat-label>Phone</mat-label>
+                <input matInput formControlName="phone">
+              </mat-form-field>
+              <mat-form-field>
+                <mat-label>Gender</mat-label>
+                <mat-select formControlName="gender">
+                  <mat-option value="male">Male</mat-option>
+                  <mat-option value="female">Female</mat-option>
+                  <mat-option value="other">Other</mat-option>
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field>
+                <mat-label>Date of Birth</mat-label>
+                <input matInput [matDatepicker]="dob" formControlName="dateOfBirth">
+                <mat-datepicker-toggle matIconSuffix [for]="dob" /><mat-datepicker #dob />
+              </mat-form-field>
+              <mat-form-field>
+                <mat-label>Address</mat-label>
+                <input matInput formControlName="address">
+              </mat-form-field>
+            </div>
+          </mat-card-content>
+        </mat-card>
+        <div class="step-actions">
+          <button mat-flat-button color="primary" matStepperNext [disabled]="accountForm.invalid">
+            Next <mat-icon>arrow_forward</mat-icon>
+          </button>
+        </div>
+      </form>
+    </mat-step>
 
-                            <mat-form-field>
-                                <mat-label>Last Name *</mat-label>
-                                <input matInput formControlName="lastName">
-                                <mat-error *ngIf="accountForm.get('lastName')?.hasError('required')">Last name is
-                                    required</mat-error>
-                            </mat-form-field>
+    <!-- Step 2: Academic -->
+    <mat-step [stepControl]="academicForm" label="Academic Info">
+      <form [formGroup]="academicForm">
+        <mat-card class="step-card">
+          <mat-card-header><mat-card-title>Academic Details</mat-card-title></mat-card-header>
+          <mat-card-content>
+            <div class="form-grid-2">
+              <mat-form-field>
+                <mat-label>Academic Year *</mat-label>
+                <mat-select formControlName="academicYearId" (selectionChange)="onYearChange($event.value)">
+                  @for (y of years(); track y.id) {
+                    <mat-option [value]="y.id">{{ y.name }}{{ y.isCurrent ? ' (Current)' : '' }}</mat-option>
+                  }
+                </mat-select>
+                <mat-error>Academic year is required</mat-error>
+              </mat-form-field>
+              <mat-form-field>
+                <mat-label>Class</mat-label>
+                <mat-select formControlName="classId">
+                  <mat-option value="">— Not Assigned —</mat-option>
+                  @for (c of classes(); track c.id) { <mat-option [value]="c.id">{{ c.name }}</mat-option> }
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field>
+                <mat-label>Roll Number</mat-label>
+                <input matInput formControlName="rollNumber">
+              </mat-form-field>
+              <mat-form-field>
+                <mat-label>Admission Status</mat-label>
+                <mat-select formControlName="admissionStatus">
+                  @for (s of statuses; track s) { <mat-option [value]="s">{{ s | titlecase }}</mat-option> }
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field>
+                <mat-label>Admission Date</mat-label>
+                <input matInput [matDatepicker]="adm" formControlName="admissionDate">
+                <mat-datepicker-toggle matIconSuffix [for]="adm" /><mat-datepicker #adm />
+              </mat-form-field>
+              <mat-form-field>
+                <mat-label>Previous School</mat-label>
+                <input matInput formControlName="previousSchool">
+              </mat-form-field>
+              <mat-form-field>
+                <mat-label>Blood Group</mat-label>
+                <input matInput formControlName="bloodGroup" placeholder="A+, B-, O+">
+              </mat-form-field>
+              <mat-form-field>
+                <mat-label>Nationality</mat-label>
+                <input matInput formControlName="nationality">
+              </mat-form-field>
+            </div>
+            <div class="flex-gap mt-4">
+              <mat-checkbox formControlName="transportRequired">Transport Required</mat-checkbox>
+              <mat-checkbox formControlName="hostelRequired">Hostel Required</mat-checkbox>
+              <mat-checkbox formControlName="hasSiblings">Has Siblings in School</mat-checkbox>
+            </div>
+          </mat-card-content>
+        </mat-card>
+        <div class="step-actions">
+          <button mat-stroked-button matStepperPrevious><mat-icon>arrow_back</mat-icon> Back</button>
+          <button mat-flat-button color="primary" matStepperNext [disabled]="academicForm.invalid">
+            Next <mat-icon>arrow_forward</mat-icon>
+          </button>
+        </div>
+      </form>
+    </mat-step>
 
-                            <mat-form-field>
-                                <mat-label>Email *</mat-label>
-                                <input matInput type="email" formControlName="email">
-                                <mat-error *ngIf="accountForm.get('email')?.hasError('email')">email must be an
-                                    email</mat-error>
-                            </mat-form-field>
+    <!-- Step 3: Guardian -->
+    <mat-step label="Parent / Guardian">
+      <form [formGroup]="guardianForm">
+        <mat-card class="step-card">
+          <mat-card-header><mat-card-title>Parent & Guardian Information</mat-card-title></mat-card-header>
+          <mat-card-content>
+            <p class="section-sub">Father</p>
+            <div class="form-grid-3">
+              <mat-form-field><mat-label>Father's Name</mat-label><input matInput formControlName="fatherName"></mat-form-field>
+              <mat-form-field><mat-label>Father's Phone</mat-label><input matInput formControlName="fatherPhone"></mat-form-field>
+              <mat-form-field>
+                <mat-label>Father's Email</mat-label><input matInput type="email" formControlName="fatherEmail">
+                <mat-error>Must be a valid email</mat-error>
+              </mat-form-field>
+            </div>
+            <mat-divider class="mt-4 mb-4" />
+            <p class="section-sub">Mother</p>
+            <div class="form-grid-2">
+              <mat-form-field><mat-label>Mother's Name</mat-label><input matInput formControlName="motherName"></mat-form-field>
+              <mat-form-field><mat-label>Mother's Phone</mat-label><input matInput formControlName="motherPhone"></mat-form-field>
+            </div>
+            <mat-divider class="mt-4 mb-4" />
+            <p class="section-sub">Emergency</p>
+            <div class="form-grid-2">
+              <mat-form-field><mat-label>Emergency Contact</mat-label><input matInput formControlName="emergencyContact"></mat-form-field>
+            </div>
+            <mat-form-field class="mt-4 w-full">
+              <mat-label>Notes</mat-label><textarea matInput formControlName="notes" rows="3"></textarea>
+            </mat-form-field>
+          </mat-card-content>
+        </mat-card>
+        <div class="step-actions">
+          <button mat-stroked-button matStepperPrevious><mat-icon>arrow_back</mat-icon> Back</button>
+          <button mat-flat-button color="primary" matStepperNext>Next <mat-icon>arrow_forward</mat-icon></button>
+        </div>
+      </form>
+    </mat-step>
 
-                            @if (!isEdit) {
-                            <mat-form-field>
-                                <mat-label>Password *</mat-label>
-                                <input matInput type="password" formControlName="password">
-                                <mat-error *ngIf="accountForm.get('password')?.hasError('required')">Password is
-                                    required</mat-error>
-                            </mat-form-field>
-                            }
+    <!-- Step 4: Fee Preference -->
+    <mat-step [stepControl]="feeForm" label="Fee Preference">
+      <form [formGroup]="feeForm">
+        <mat-card class="step-card">
+          <mat-card-header>
+            <mat-card-title>Fee Billing Preference</mat-card-title>
+            <mat-card-subtitle>
+              @if (!isEdit) {
+                Invoices for the <strong>entire academic year</strong> are auto-generated immediately after enrollment.
+              } @else {
+                Changes apply to future invoices only — existing invoices are unaffected.
+              }
+            </mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
 
-                            <mat-form-field>
-                                <mat-label>Phone</mat-label>
-                                <input matInput formControlName="phone">
-                            </mat-form-field>
-
-                            <mat-form-field>
-                                <mat-label>Gender</mat-label>
-                                <mat-select formControlName="gender">
-                                    <mat-option value="male">Male</mat-option>
-                                    <mat-option value="female">Female</mat-option>
-                                    <mat-option value="other">Other</mat-option>
-                                </mat-select>
-                            </mat-form-field>
-
-                            <mat-form-field>
-                                <mat-label>Date of Birth</mat-label>
-                                <input matInput [matDatepicker]="dob" formControlName="dateOfBirth">
-                                <mat-datepicker-toggle matIconSuffix [for]="dob" />
-                                <mat-datepicker #dob />
-                                <mat-error *ngIf="accountForm.get('dateOfBirth')?.hasError('dateOfBirth')">
-                                    dateOfBirth must be a valid ISO 8601 date string
-                                </mat-error>
-                            </mat-form-field>
-
-                            <mat-form-field>
-                                <mat-label>Address</mat-label>
-                                <input matInput formControlName="address">
-                            </mat-form-field>
-                        </div>
-                    </mat-card-content>
-                </mat-card>
-                <div class="step-actions">
-                    <button mat-flat-button color="primary" matStepperNext [disabled]="accountForm.invalid">Next
-                        <mat-icon>arrow_forward</mat-icon></button>
+            <!-- Billing frequency -->
+            <p class="pref-label">How should recurring fees be billed?</p>
+            <div class="freq-grid">
+              @for (f of frequencies; track f.value) {
+                <div class="freq-card"
+                     [class.freq-selected]="feeForm.value.billingFrequency === f.value"
+                     (click)="feeForm.patchValue({ billingFrequency: f.value })">
+                  <mat-icon class="freq-icon">{{ f.icon }}</mat-icon>
+                  <div class="freq-title">{{ f.label }}</div>
+                  <div class="freq-desc">{{ f.desc }}</div>
                 </div>
-            </form>
-        </mat-step>
+              }
+            </div>
 
-        <!-- Step 2: Academic -->
-        <mat-step [stepControl]="academicForm" label="Academic Info">
-            <form [formGroup]="academicForm">
-                <mat-card class="step-card">
-                    <mat-card-header><mat-card-title>Academic Details</mat-card-title></mat-card-header>
-                    <mat-card-content>
-                        <div class="form-grid-2">
-                            <mat-form-field>
-                                <mat-label>Academic Year *</mat-label>
-                                <mat-select formControlName="academicYearId"
-                                    (selectionChange)="onYearChange($event.value)">
-                                    @for (y of years(); track y.id) { <mat-option [value]="y.id">{{ y.name
-                                        }}</mat-option> }
-                                </mat-select>
-                                <mat-error *ngIf="academicForm.get('academicYearId')?.hasError('required')">Academic
-                                    year is required</mat-error>
-                            </mat-form-field>
-
-                            <mat-form-field>
-                                <mat-label>Class</mat-label>
-                                <mat-select formControlName="classId">
-                                    <mat-option value="">— Not Assigned —</mat-option>
-                                    @for (c of classes(); track c.id) { <mat-option [value]="c.id">{{ c.name
-                                        }}</mat-option> }
-                                </mat-select>
-                                <mat-error *ngIf="academicForm.get('classId')?.hasError('classId')">
-                                    classId must be a UUID
-                                </mat-error>
-                            </mat-form-field>
-
-                            <mat-form-field>
-                                <mat-label>Roll Number</mat-label>
-                                <input matInput formControlName="rollNumber">
-                            </mat-form-field>
-
-                            <mat-form-field>
-                                <mat-label>Admission Status</mat-label>
-                                <mat-select formControlName="admissionStatus">
-                                    @for (s of statuses; track s) { <mat-option [value]="s">{{ s | titlecase
-                                        }}</mat-option> }
-                                </mat-select>
-                            </mat-form-field>
-
-                            <mat-form-field>
-                                <mat-label>Admission Date</mat-label>
-                                <input matInput [matDatepicker]="adm" formControlName="admissionDate">
-                                <mat-datepicker-toggle matIconSuffix [for]="adm" />
-                                <mat-datepicker #adm />
-                            </mat-form-field>
-
-                            <mat-form-field>
-                                <mat-label>Previous School</mat-label>
-                                <input matInput formControlName="previousSchool">
-                            </mat-form-field>
-
-                            <mat-form-field>
-                                <mat-label>Blood Group</mat-label>
-                                <input matInput formControlName="bloodGroup" placeholder="A+, B-, O+">
-                            </mat-form-field>
-
-                            <mat-form-field>
-                                <mat-label>Nationality</mat-label>
-                                <input matInput formControlName="nationality">
-                            </mat-form-field>
-                        </div>
-                        <div class="flex-gap mt-4">
-                            <mat-checkbox formControlName="transportRequired">Transport Required</mat-checkbox>
-                            <mat-checkbox formControlName="hostelRequired">Hostel Required</mat-checkbox>
-                            <mat-checkbox formControlName="hasSiblings">Has Siblings in School</mat-checkbox>
-                        </div>
-                    </mat-card-content>
-                </mat-card>
-                <div class="step-actions">
-                    <button mat-stroked-button matStepperPrevious><mat-icon>arrow_back</mat-icon> Back</button>
-                    <button mat-flat-button color="primary" matStepperNext [disabled]="academicForm.invalid">Next
-                        <mat-icon>arrow_forward</mat-icon></button>
+            <!-- Invoice schedule preview (create only) -->
+            @if (!isEdit) {
+              <div class="preview-box mt-4">
+                <div class="preview-header">
+                  <mat-icon>receipt_long</mat-icon> Invoice Schedule on Enrollment
                 </div>
-            </form>
-        </mat-step>
-
-        <!-- Step 3: Guardian -->
-        <mat-step label="Parent / Guardian">
-            <form [formGroup]="guardianForm">
-                <mat-card class="step-card">
-                    <mat-card-header><mat-card-title>Parent & Guardian Information</mat-card-title></mat-card-header>
-                    <mat-card-content>
-                        <p style="font-weight:600;margin-bottom:12px;color:#475569">Father</p>
-                        <div class="form-grid-3">
-                            <mat-form-field>
-                                <mat-label>Father's Name</mat-label>
-                                <input matInput formControlName="fatherName">
-                            </mat-form-field>
-
-                            <mat-form-field>
-                                <mat-label>Father's Phone</mat-label>
-                                <input matInput formControlName="fatherPhone">
-                            </mat-form-field>
-
-                            <mat-form-field>
-                                <mat-label>Father's Email</mat-label>
-                                <input matInput type="email" formControlName="fatherEmail">
-                                <mat-error *ngIf="guardianForm.get('fatherEmail')?.hasError('email')">
-                                    fatherEmail must be an email
-                                </mat-error>
-                            </mat-form-field>
-                        </div>
-
-                        <div class="mt-2 mb-2"></div>
-                        <mat-divider class="mt-4 mb-4" />
-
-                        <p style="font-weight:600;margin-bottom:12px;color:#475569">Mother</p>
-                        <div class="form-grid-2">
-                            <mat-form-field>
-                                <mat-label>Mother's Name</mat-label>
-                                <input matInput formControlName="motherName">
-                            </mat-form-field>
-
-                            <mat-form-field>
-                                <mat-label>Mother's Phone</mat-label>
-                                <input matInput formControlName="motherPhone">
-                            </mat-form-field>
-                        </div>
-
-                        <div class="mt-2 mb-2"></div>
-                        <mat-divider class="mt-4 mb-4" />
-
-                        <p style="font-weight:600;margin-bottom:12px;color:#475569">Emergency Contact</p>
-                        <div class="form-grid-2">
-                            <mat-form-field>
-                                <mat-label>Emergency Contact</mat-label>
-                                <input matInput formControlName="emergencyContact">
-                            </mat-form-field>
-                        </div>
-
-                        <mat-form-field class="mt-4 w-full">
-                            <mat-label>Notes</mat-label>
-                            <textarea matInput formControlName="notes" rows="3"></textarea>
-                        </mat-form-field>
-                    </mat-card-content>
-                </mat-card>
-                <div class="step-actions">
-                    <button mat-stroked-button matStepperPrevious><mat-icon>arrow_back</mat-icon> Back</button>
-                    <button mat-flat-button color="primary" (click)="submit()" [disabled]="saving()">
-                        @if (saving()) { <mat-spinner diameter="18" /> } @else { <mat-icon>save</mat-icon> }
-                        {{ isEdit ? 'Save Changes' : 'Enroll Student' }}
-                    </button>
+                <div class="preview-body">
+                  @if (feeForm.value.billingFrequency === 'monthly') {
+                    <div class="preview-row"><mat-icon class="pi">check_circle</mat-icon><span><strong>Invoice 1:</strong> Admission fee — due <strong>today</strong></span></div>
+                    <div class="preview-row"><mat-icon class="pi">schedule</mat-icon><span><strong>Invoices 2–N:</strong> One per remaining month, each due 10 days after issue date</span></div>
+                    <div class="preview-row"><mat-icon class="pi info">info</mat-icon><span>Future invoices stay <span class="badge badge-issued" style="font-size:.7rem">issued</span> until their due date passes — automatically marked overdue by the system</span></div>
+                  }
+                  @if (feeForm.value.billingFrequency === 'quarterly') {
+                    <div class="preview-row"><mat-icon class="pi">check_circle</mat-icon><span><strong>Invoice 1:</strong> Admission fee — due <strong>today</strong></span></div>
+                    <div class="preview-row"><mat-icon class="pi">schedule</mat-icon><span><strong>Invoices 2–N:</strong> One per remaining quarter (Jan–Mar, Apr–Jun, Jul–Sep, Oct–Dec) · fee amount <strong>×3</strong></span></div>
+                  }
+                  @if (feeForm.value.billingFrequency === 'semi_annual') {
+                    <div class="preview-row"><mat-icon class="pi">check_circle</mat-icon><span><strong>Invoice 1:</strong> Admission fee — due <strong>today</strong></span></div>
+                    <div class="preview-row"><mat-icon class="pi">schedule</mat-icon><span><strong>Invoices 2–3:</strong> H1 (Jan–Jun) and H2 (Jul–Dec) · fee amount <strong>×6</strong></span></div>
+                  }
+                  @if (feeForm.value.billingFrequency === 'annual') {
+                    <div class="preview-row"><mat-icon class="pi">check_circle</mat-icon><span><strong>Invoice 1:</strong> Admission fee — due <strong>today</strong></span></div>
+                    <div class="preview-row"><mat-icon class="pi">schedule</mat-icon><span><strong>Invoice 2:</strong> Full-year fee · amount <strong>×12</strong> — due 10 days from today</span></div>
+                  }
                 </div>
-            </form>
-        </mat-step>
-    </mat-stepper>
+              </div>
+            }
+
+            <!-- Optional services -->
+            @if (availableFeeStructures().length) {
+              <mat-divider class="mt-6 mb-4" />
+              <p class="pref-label">Optional Services</p>
+              <p class="pref-sub">Mandatory fees (tuition, exam, etc.) are always included. Select any extra services.</p>
+              <div class="services-grid">
+                @for (fs of availableFeeStructures(); track fs.id) {
+                  <div class="service-card" [class.service-selected]="isFeeSelected(fs.id)" (click)="toggleFee(fs.id)">
+                    <div class="svc-left">
+                      <mat-icon class="svc-icon">{{ categoryIcon(fs.category) }}</mat-icon>
+                      <div>
+                        <div class="svc-name">{{ fs.name }}</div>
+                        <div class="svc-meta">{{ fs.category | titlecase }} · PKR {{ fs.amount | number:'1.0-0' }}/mo</div>
+                      </div>
+                    </div>
+                    <mat-icon class="check-icon">{{ isFeeSelected(fs.id) ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                  </div>
+                }
+              </div>
+            }
+
+          </mat-card-content>
+        </mat-card>
+
+        <div class="step-actions">
+          <button mat-stroked-button matStepperPrevious><mat-icon>arrow_back</mat-icon> Back</button>
+          <button mat-flat-button color="primary" (click)="submit()" [disabled]="saving()">
+            @if (saving()) { <mat-spinner diameter="18" /> }
+            @else { <mat-icon>{{ isEdit ? 'save' : 'how_to_reg' }}</mat-icon> }
+            {{ isEdit ? 'Save Changes' : 'Enroll & Generate Invoices' }}
+          </button>
+        </div>
+      </form>
+    </mat-step>
+
+  </mat-stepper>
 </div>
