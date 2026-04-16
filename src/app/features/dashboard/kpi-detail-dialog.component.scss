@@ -1,0 +1,101 @@
+.dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.dialog-title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.dialog-subtitle {
+  margin: 4px 0 0;
+  font-size: .8rem;
+  color: #64748b;
+}
+
+.dialog-content {
+  padding: 20px 24px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.mono-text {
+  font-size: .8rem;
+  font-weight: 600;
+  font-family: monospace;
+}
+
+.student-name {
+  font-weight: 600;
+  font-size: .8rem;
+}
+
+.student-reg {
+  font-size: .72rem;
+  color: #64748b;
+}
+
+.due-date {
+  font-size: .8rem;
+  color: #0f172a;
+  
+  &.due-date-past {
+    color: #dc2626;
+  }
+}
+
+.balance-amount {
+  font-weight: 700;
+  color: #dc2626;
+}
+
+.payment-amount {
+  font-weight: 700;
+  color: #16a34a;
+}
+
+.capitalize {
+  text-transform: capitalize;
+  font-size: .8rem;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  color: #94a3b8;
+}
+
+.empty-icon {
+  font-size: 40px;
+  height: 40px;
+  width: 40px;
+}
+
+.badge {
+  font-size: .7rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.badge-paid, .badge-completed {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.badge-issued, .badge-pending {
+  background: #fef9c3;
+  color: #a16207;
+}
+
+.badge-overdue {
+  background: #fee2e2;
+  color: #dc2626;
+}

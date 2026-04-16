@@ -1,0 +1,168 @@
+.grid-2 { 
+  display: grid; 
+  grid-template-columns: 1fr 1fr; 
+  gap: 20px; 
+}
+
+.clickable-kpi { 
+  cursor: pointer; 
+  transition: transform .15s, box-shadow .15s; 
+  
+  &:hover { 
+    transform: translateY(-2px); 
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .12); 
+  }
+}
+
+.bar-chart { 
+  display: flex; 
+  align-items: flex-end; 
+  gap: 8px; 
+  height: 140px; 
+  padding: 8px 0; 
+}
+
+.bar-item { 
+  display: flex; 
+  flex-direction: column; 
+  align-items: center; 
+  flex: 1; 
+  gap: 4px; 
+}
+
+.bar-wrap { 
+  flex: 1; 
+  width: 100%; 
+  display: flex; 
+  align-items: flex-end; 
+}
+
+.bar-fill { 
+  width: 100%; 
+  min-height: 4px; 
+  background: #2563eb; 
+  border-radius: 4px 4px 0 0; 
+  position: relative; 
+  transition: height .3s; 
+  
+  &:hover .bar-tip { 
+    display: block; 
+  }
+}
+
+.bar-tip { 
+  display: none; 
+  position: absolute; 
+  top: -28px; 
+  left: 50%; 
+  transform: translateX(-50%); 
+  background: #0f172a; 
+  color: #fff; 
+  font-size: .65rem; 
+  padding: 2px 6px; 
+  border-radius: 4px; 
+  white-space: nowrap; 
+  z-index: 10; 
+}
+
+.bar-label { 
+  font-size: .72rem; 
+  color: #64748b; 
+}
+
+.empty-chart { 
+  text-align: center; 
+  color: #94a3b8; 
+  padding: 32px; 
+  font-size: .875rem; 
+}
+
+.method-list { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 16px; 
+}
+
+.method-item { 
+  display: flex; 
+  align-items: center; 
+  gap: 12px; 
+}
+
+.method-icon { 
+  width: 36px; 
+  height: 36px; 
+  border-radius: 8px; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  
+  mat-icon { 
+    font-size: 18px; 
+  }
+}
+
+.method-cash { 
+  background: #dcfce7; 
+  color: #16a34a; 
+}
+
+.method-bank_transfer { 
+  background: #dbeafe; 
+  color: #2563eb; 
+}
+
+.method-cheque { 
+  background: #fef9c3; 
+  color: #a16207; 
+}
+
+.method-online { 
+  background: #f3e8ff; 
+  color: #9333ea; 
+}
+
+.method-pos { 
+  background: #ffedd5; 
+  color: #ea580c; 
+}
+
+.card-header-action { 
+  margin-left: auto; 
+}
+
+.payment-list { 
+  display: flex; 
+  flex-direction: column; 
+}
+
+.payment-row { 
+  display: flex; 
+  align-items: center; 
+  gap: 12px; 
+  padding: 12px 16px; 
+  border-bottom: 1px solid #f1f5f9; 
+  
+  &:last-child { 
+    border-bottom: none; 
+  }
+  
+  &:hover { 
+    background: #f8fafc; 
+  }
+}
+
+.payment-avatar { 
+  width: 36px; 
+  height: 36px; 
+  background: #dbeafe; 
+  border-radius: 50%; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  font-size: .75rem; 
+  font-weight: 700; 
+  color: #2563eb; 
+  flex-shrink: 0; 
+}
+
