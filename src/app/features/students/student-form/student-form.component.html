@@ -213,21 +213,21 @@
                 </div>
                 <div class="preview-body">
                   @if (feeForm.value.billingFrequency === 'monthly') {
-                    <div class="preview-row"><mat-icon class="pi">check_circle</mat-icon><span><strong>Invoice 1:</strong> Admission fee — due <strong>today</strong></span></div>
-                    <div class="preview-row"><mat-icon class="pi">schedule</mat-icon><span><strong>Invoices 2–N:</strong> One per remaining month, each due 10 days after issue date</span></div>
-                    <div class="preview-row"><mat-icon class="pi info">info</mat-icon><span>Future invoices stay <span class="badge badge-issued" style="font-size:.7rem">issued</span> until their due date passes — automatically marked overdue by the system</span></div>
+                    <div class="preview-row"><mat-icon class="pi">check_circle</mat-icon><span><strong>Invoice 1 (due today):</strong> Admission fee + current month fee — paid together at enrollment</span></div>
+                    <div class="preview-row"><mat-icon class="pi">schedule</mat-icon><span><strong>Invoices 2–N:</strong> One per remaining month, each due 10 days after the 1st of that month</span></div>
+                    <div class="preview-row"><mat-icon class="pi info">info</mat-icon><span>Future invoices stay <span class="badge badge-issued" style="font-size:.7rem;padding:1px 6px">issued</span> until their due date passes — automatically marked overdue by the system</span></div>
                   }
                   @if (feeForm.value.billingFrequency === 'quarterly') {
-                    <div class="preview-row"><mat-icon class="pi">check_circle</mat-icon><span><strong>Invoice 1:</strong> Admission fee — due <strong>today</strong></span></div>
-                    <div class="preview-row"><mat-icon class="pi">schedule</mat-icon><span><strong>Invoices 2–N:</strong> One per remaining quarter (Jan–Mar, Apr–Jun, Jul–Sep, Oct–Dec) · fee amount <strong>×3</strong></span></div>
+                    <div class="preview-row"><mat-icon class="pi">check_circle</mat-icon><span><strong>Invoice 1 (due today):</strong> Admission fee + current quarter fee (amount ×3) — paid together at enrollment</span></div>
+                    <div class="preview-row"><mat-icon class="pi">schedule</mat-icon><span><strong>Invoices 2–N:</strong> One per remaining quarter (Jan–Mar · Apr–Jun · Jul–Sep · Oct–Dec)</span></div>
                   }
                   @if (feeForm.value.billingFrequency === 'semi_annual') {
-                    <div class="preview-row"><mat-icon class="pi">check_circle</mat-icon><span><strong>Invoice 1:</strong> Admission fee — due <strong>today</strong></span></div>
-                    <div class="preview-row"><mat-icon class="pi">schedule</mat-icon><span><strong>Invoices 2–3:</strong> H1 (Jan–Jun) and H2 (Jul–Dec) · fee amount <strong>×6</strong></span></div>
+                    <div class="preview-row"><mat-icon class="pi">check_circle</mat-icon><span><strong>Invoice 1 (due today):</strong> Admission fee + current half-year fee (amount ×6) — paid together at enrollment</span></div>
+                    <div class="preview-row"><mat-icon class="pi">schedule</mat-icon><span><strong>Invoice 2:</strong> Remaining half-year — H1 (Jan–Jun) or H2 (Jul–Dec)</span></div>
                   }
                   @if (feeForm.value.billingFrequency === 'annual') {
-                    <div class="preview-row"><mat-icon class="pi">check_circle</mat-icon><span><strong>Invoice 1:</strong> Admission fee — due <strong>today</strong></span></div>
-                    <div class="preview-row"><mat-icon class="pi">schedule</mat-icon><span><strong>Invoice 2:</strong> Full-year fee · amount <strong>×12</strong> — due 10 days from today</span></div>
+                    <div class="preview-row"><mat-icon class="pi">check_circle</mat-icon><span><strong>Invoice 1 (due today):</strong> Admission fee + full year fee (amount ×12) — single payment covers everything</span></div>
+                    <div class="preview-row"><mat-icon class="pi info">info</mat-icon><span>No further invoices will be generated for this academic year</span></div>
                   }
                 </div>
               </div>
