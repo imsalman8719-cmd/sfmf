@@ -74,19 +74,19 @@ import { AcademicYear, TargetVsActual } from '../../../core/models';
           </mat-card-content>
         </mat-card>
 
-        <mat-tab-group>
+        <mat-tab-group class="report-tabs" animationDuration="200ms">
 
           <!-- Quarterly Tab -->
           <mat-tab label="Quarterly">
             <div class="form-grid-2 mt-6" style="gap:16px">
               @for (q of data()!.quarterly; track q.quarter) {
-                <mat-card [class.current-quarter]="isCurrentQuarter(q.quarter)">
-                  @if (isCurrentQuarter(q.quarter)) {
+                <mat-card [class.current-quarter]="isCurrentQuarter(q)">
+                  @if (isCurrentQuarter(q)) {
                     <div class="current-quarter-label">
                       <mat-icon style="font-size:13px;height:13px;width:13px">schedule</mat-icon> Current Quarter
                     </div>
                   }
-                  <mat-card-content style="margin-top: 12px;">
+                  <mat-card-content>
                     <div class="flex-between mb-3">
                       <div>
                         <h3 style="font-weight:700;font-size:1rem">{{ q.quarter }}</h3>
@@ -115,7 +115,9 @@ import { AcademicYear, TargetVsActual } from '../../../core/models';
                 <ng-container matColumnDef="target"><th mat-header-cell *matHeaderCellDef>Target</th><td mat-cell *matCellDef="let m">{{ m.target | currency:'PKR ':'symbol':'1.0-0' }}</td></ng-container>
                 <ng-container matColumnDef="invoiced"><th mat-header-cell *matHeaderCellDef>Invoiced</th><td mat-cell *matCellDef="let m">{{ m.invoiced | currency:'PKR ':'symbol':'1.0-0' }}</td></ng-container>
                 <ng-container matColumnDef="collected"><th mat-header-cell *matHeaderCellDef>Collected</th><td mat-cell *matCellDef="let m" style="color:#16a34a;font-weight:600">{{ m.collected | currency:'PKR ':'symbol':'1.0-0' }}</td></ng-container>
-                <ng-container matColumnDef="shortfall"><th mat-header-cell *matHeaderCellDef>Shortfall</th><td mat-cell *matCellDef="let m" [style.color]="m.shortfall > 0 ? '#dc2626' : '#16a34a'">{{ m.shortfall > 0 ? (m.shortfall | currency:'PKR ':'symbol':'1.0-0') : '—' }}</td></ng-container>
+                <ng-container matColumnDef="shortfall"><th mat-header-cell *matHeaderCellDef>Shortfall</th><td mat-cell *matCellDef="let m" [style.color]="m.shortfall > 0 ? '#dc2626' : '#64748b'">
+                    {{ m.shortfall > 0 ? (m.shortfall | currency:'PKR ':'symbol':'1.0-0') : '—' }}
+                  </td></ng-container>
                 <ng-container matColumnDef="rate">
                   <th mat-header-cell *matHeaderCellDef>Achievement</th>
                   <td mat-cell *matCellDef="let m">
@@ -129,6 +131,35 @@ import { AcademicYear, TargetVsActual } from '../../../core/models';
                 <tr mat-row *matRowDef="let row; columns: mCols;" [class.current-month-row]="isCurrentMonth(row)"></tr>
               </table>
             </div>
+
+            <!-- Legend -->
+            <div class="legend-row mt-4">
+              <div class="legend-item">
+                <span class="badge badge-paid" style="font-size:.72rem">90%+</span>
+                <span>On track — collected most of the target</span>
+              </div>
+              <div class="legend-item">
+                <span class="badge badge-pending" style="font-size:.72rem">70–89%</span>
+                <span>Partial — some collection shortfall</span>
+              </div>
+              <div class="legend-item">
+                <span class="badge badge-overdue" style="font-size:.72rem">&lt;70%</span>
+                <span>Behind — significant shortfall vs target</span>
+              </div>
+              <div class="legend-item">
+                <span class="badge badge-pending" style="font-size:.72rem">—</span>
+                <span>No target set but invoices were raised</span>
+              </div>
+              <div class="legend-item">
+                <span class="badge badge-pending" style="font-size:.72rem">N/A</span>
+                <span>No target and no invoice activity this month</span>
+              </div>
+              <div class="legend-item current-month-dot">
+                <span class="dot-current"></span>
+                <span>Highlighted row = current month</span>
+              </div>
+            </div>
+
           </mat-tab>
 
         </mat-tab-group>
@@ -161,6 +192,34 @@ import { AcademicYear, TargetVsActual } from '../../../core/models';
     }
     .current-month-row { background: #eff6ff !important; }
     .current-month-row td { font-weight: 700 !important; color: #1d4ed8 !important; }
+    .legend-row {
+      display: flex; flex-wrap: wrap; gap: 16px; align-items: center;
+      padding: 12px 16px; background: #f8fafc; border-radius: 8px;
+      border: 1px solid #e2e8f0; font-size: .78rem; color: #475569;
+    }
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+    .dot-current .dot-current { display: none; }
+    .dot-current::before {
+      content: ''; display: inline-block; width: 14px; height: 14px;
+      background: #eff6ff; border: 2px solid #2563eb; border-radius: 3px;
+    }
+
+    /* Tab highlighter */
+    ::ng-deep .report-tabs .mat-mdc-tab.mdc-tab--active {
+      background: #eff6ff;
+      border-radius: 8px 8px 0 0;
+    }
+    ::ng-deep .report-tabs .mat-mdc-tab.mdc-tab--active .mdc-tab__text-label {
+      color: #2563eb !important;
+      font-weight: 700;
+    }
+    ::ng-deep .report-tabs .mat-mdc-tab-header {
+      border-bottom: 2px solid #e2e8f0;
+    }
+    ::ng-deep .report-tabs .mdc-tab-indicator__content--underline {
+      border-color: #2563eb !important;
+      border-top-width: 3px !important;
+    }
   `]
 })
 export class TargetVsActualComponent implements OnInit {
@@ -192,11 +251,24 @@ export class TargetVsActualComponent implements OnInit {
   pct(c: number, t: number) { return t ? Math.min(100, (c / t) * 100) : 0; }
   achievementClass() { const p = this.annualPct(); return p >= 90 ? 'kpi-green' : p >= 70 ? 'kpi-blue' : 'kpi-red'; }
   achievementColor() { const p = this.annualPct(); return p >= 90 ? '#16a34a' : p >= 70 ? '#2563eb' : '#dc2626'; }
-  rateClass(r: string) { const n = parseFloat(r); return n >= 90 ? 'badge-paid' : n >= 70 ? 'badge-pending' : 'badge-overdue'; }
+  rateClass(r: string) {
+    if (r === 'N/A' || r === '—') return 'badge-pending';
+    const n = parseFloat(r);
+    return n >= 90 ? 'badge-paid' : n >= 70 ? 'badge-pending' : 'badge-overdue';
+  }
 
-  isCurrentQuarter(quarter: string): boolean {
-    const q = Math.ceil((new Date().getMonth() + 1) / 3);
-    return quarter === `Q${q}`;
+  isCurrentQuarter(q: { quarter: string; calYear?: number; calQuarter?: number }): boolean {
+    const now = new Date();
+    const curQ = Math.ceil((now.getMonth() + 1) / 3);
+    const curY = now.getFullYear();
+    // Backend now sends calYear+calQuarter for exact matching
+    if (q.calYear !== undefined && q.calQuarter !== undefined) {
+      return q.calYear === curY && q.calQuarter === curQ;
+    }
+    // Fallback: parse "Q2 2026" format
+    const m = q.quarter.match(/Q(\d)\s*(\d{4})/);
+    if (m) return parseInt(m[1]) === curQ && parseInt(m[2]) === curY;
+    return false;
   }
 
   isCurrentMonth(m: { month: number; year: number }): boolean {

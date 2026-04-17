@@ -80,7 +80,7 @@ import { MatDivider } from '@angular/material/divider';
           </mat-form-field>
 
           <mat-form-field style="min-width:130px">
-            <mat-label>Month</mat-label>
+            <mat-label>Issue Month</mat-label>
             <mat-select [formControl]="monthCtrl">
               <mat-option value="">All Months</mat-option>
               @for (m of months; track m.v) { <mat-option [value]="m.v">{{ m.l }}</mat-option> }
