@@ -27,8 +27,9 @@
                 <mat-error>Last name is required</mat-error>
               </mat-form-field>
               <mat-form-field>
-                <mat-label>Email *</mat-label>
+                <mat-label>Email (optional)</mat-label>
                 <input matInput type="email" formControlName="email">
+                <mat-hint>For notifications only — login uses Student ID</mat-hint>
                 <mat-error>Must be a valid email</mat-error>
               </mat-form-field>
               @if (!isEdit) {

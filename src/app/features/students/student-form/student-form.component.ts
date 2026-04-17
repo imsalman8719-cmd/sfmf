@@ -71,7 +71,7 @@ export class StudentFormComponent implements OnInit {
   accountForm = this.fb.group({
     firstName:   ['', Validators.required],
     lastName:    ['', Validators.required],
-    email:       ['', [Validators.required, emailValidator]],
+    email:       ['', emailValidator],
     password:    [''],
     phone:       [''],
     gender:      [''],

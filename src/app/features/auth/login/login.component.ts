@@ -48,14 +48,11 @@ import { AuthService } from '../../../core/services/auth.service';
           <mat-card-content>
             <form [formGroup]="form" (ngSubmit)="login()">
               <mat-form-field>
-                <mat-label>Email Address</mat-label>
-                <input matInput type="email" formControlName="email" placeholder="admin@school.edu" autocomplete="email">
-                <mat-icon matSuffix>email</mat-icon>
-                @if (form.get('email')?.errors?.['required'] && form.get('email')?.touched) {
-                  <mat-error>Email is required</mat-error>
-                }
-                @if (form.get('email')?.errors?.['email']) {
-                  <mat-error>Enter a valid email</mat-error>
+                <mat-label>Employee ID / Student ID</mat-label>
+                <input matInput formControlName="identifier" placeholder="EMP-001 or STU-2026-XXXX" autocomplete="username">
+                <mat-icon matSuffix>badge</mat-icon>
+                @if (form.get('identifier')?.errors?.['required'] && form.get('identifier')?.touched) {
+                  <mat-error>Employee ID or Registration Number is required</mat-error>
                 }
               </mat-form-field>
 
@@ -163,8 +160,8 @@ export class LoginComponent {
   private snackBar = inject(MatSnackBar);
   private fb = inject(FormBuilder);
 
-  form = this.fb.group({ 
-    email: ['', [Validators.required, Validators.email]], 
+  form = this.fb.group({
+    identifier: ['', Validators.required], 
     password: ['', Validators.required] 
   });
   loading = signal(false);
@@ -190,8 +187,8 @@ export class LoginComponent {
     }
     this.loading.set(true);
     this.error.set('');
-    const { email, password } = this.form.value;
-    this.auth.login(email!, password!).subscribe({
+    const { identifier, password } = this.form.value;
+    this.auth.login(identifier!, password!).subscribe({
       next: () => this.router.navigate(['/dashboard']),
       error: (err) => { 
         this.error.set(err.message || 'Invalid credentials'); 

@@ -1,5 +1,4 @@
 <div class="page-container">
-  <!-- Header -->
   <div class="flex-between mb-6">
     <div>
       <h1 class="section-title">Finance Dashboard</h1>
@@ -10,7 +9,7 @@
         <mat-label>Academic Year</mat-label>
         <mat-select [formControl]="yearCtrl" (selectionChange)="loadDashboard($event.value)">
           @for (y of years(); track y.id) {
-          <mat-option [value]="y.id">{{ y.name }}{{ y.isCurrent ? ' (Current)' : '' }}</mat-option>
+            <mat-option [value]="y.id">{{ y.name }}{{ y.isCurrent ? ' (Current)' : '' }}</mat-option>
           }
         </mat-select>
       </mat-form-field>
@@ -18,51 +17,84 @@
   </div>
 
   @if (loading()) {
-  <div style="padding:48px;text-align:center"><mat-spinner diameter="48" /></div>
+    <div style="padding:48px;text-align:center"><mat-spinner diameter="48" /></div>
   } @else if (data()) {
+
   <!-- KPI Cards -->
   <div class="kpi-grid">
+
     <div class="kpi-card kpi-blue" style="cursor:default">
-      <div class="kpi-icon"><mat-icon>people</mat-icon></div>
+      <div class="kpi-header">
+        <div class="kpi-icon"><mat-icon>people</mat-icon></div>
+        <mat-icon class="kpi-help"
+          matTooltip="Total number of active students enrolled in this academic year."
+          matTooltipPosition="above" matTooltipClass="kpi-tooltip">help_outline</mat-icon>
+      </div>
       <span class="kpi-label">Total Students</span>
       <span class="kpi-value">{{ data()!.summary.totalStudents | number }}</span>
       <span class="kpi-sub">Active enrollments</span>
     </div>
 
     <div class="kpi-card kpi-purple clickable-kpi" (click)="openInvoicedDetail()">
-      <div class="kpi-icon"><mat-icon>receipt_long</mat-icon></div>
+      <div class="kpi-header">
+        <div class="kpi-icon"><mat-icon>receipt_long</mat-icon></div>
+        <mat-icon class="kpi-help"
+          matTooltip="Total value of all invoices raised this year. This is the gross amount the school expects to collect, before any payments or waivers."
+          matTooltipPosition="above" matTooltipClass="kpi-tooltip">help_outline</mat-icon>
+      </div>
       <span class="kpi-label">Total Invoiced</span>
       <span class="kpi-value">{{ fmt(data()!.summary.totalInvoiced) }}</span>
       <span class="kpi-sub">Click to view invoices →</span>
     </div>
 
     <div class="kpi-card kpi-green clickable-kpi" (click)="openCollectedDetail()">
-      <div class="kpi-icon"><mat-icon>check_circle</mat-icon></div>
+      <div class="kpi-header">
+        <div class="kpi-icon"><mat-icon>check_circle</mat-icon></div>
+        <mat-icon class="kpi-help"
+          matTooltip="Total payments received and confirmed. The percentage shown is the collection rate — how much of the total invoiced amount has been paid."
+          matTooltipPosition="above" matTooltipClass="kpi-tooltip">help_outline</mat-icon>
+      </div>
       <span class="kpi-label">Collected</span>
       <span class="kpi-value">{{ fmt(data()!.summary.totalCollected) }}</span>
       <span class="kpi-sub">{{ data()!.summary.collectionRate }} · Click to view →</span>
     </div>
 
     <div class="kpi-card kpi-orange clickable-kpi" (click)="openOutstandingDetail()">
-      <div class="kpi-icon"><mat-icon>pending_actions</mat-icon></div>
+      <div class="kpi-header">
+        <div class="kpi-icon"><mat-icon>pending_actions</mat-icon></div>
+        <mat-icon class="kpi-help"
+          matTooltip="Total unpaid balance across all invoices — includes both future-due and past-due amounts. Outstanding = Total Invoiced − Collected. Not all outstanding amounts are overdue yet."
+          matTooltipPosition="above" matTooltipClass="kpi-tooltip">help_outline</mat-icon>
+      </div>
       <span class="kpi-label">Outstanding</span>
       <span class="kpi-value">{{ fmt(data()!.summary.totalOutstanding) }}</span>
       <span class="kpi-sub">Click to view pending →</span>
     </div>
 
     <div class="kpi-card kpi-red clickable-kpi" (click)="openOverdueDetail()">
-      <div class="kpi-icon"><mat-icon>warning</mat-icon></div>
+      <div class="kpi-header">
+        <div class="kpi-icon"><mat-icon>warning</mat-icon></div>
+        <mat-icon class="kpi-help"
+          matTooltip="Unpaid balance on invoices whose due date has already passed. A subset of Outstanding — only the amounts that are now late. Late fees may be applied to these."
+          matTooltipPosition="above" matTooltipClass="kpi-tooltip">help_outline</mat-icon>
+      </div>
       <span class="kpi-label">Overdue</span>
       <span class="kpi-value">{{ fmt(data()!.summary.overdueAmount) }}</span>
       <span class="kpi-sub">Click to view overdue →</span>
     </div>
 
     <div class="kpi-card kpi-cyan clickable-kpi" (click)="openDefaultersDetail()">
-      <div class="kpi-icon"><mat-icon>group_off</mat-icon></div>
+      <div class="kpi-header">
+        <div class="kpi-icon"><mat-icon>group_off</mat-icon></div>
+        <mat-icon class="kpi-help"
+          matTooltip="Students who missed at least one payment deadline — they have an invoice with a past due date and still an unpaid balance. Students with invoices not yet due are NOT counted as defaulters."
+          matTooltipPosition="above" matTooltipClass="kpi-tooltip">help_outline</mat-icon>
+      </div>
       <span class="kpi-label">Defaulters</span>
       <span class="kpi-value">{{ data()!.summary.defaulterCount | number }}</span>
       <span class="kpi-sub">Click to view list →</span>
     </div>
+
   </div>
 
   <!-- Collection Rate -->
@@ -85,68 +117,62 @@
   </mat-card>
 
   <div class="grid-2">
-    <!-- Monthly Trend -->
     <mat-card>
       <mat-card-header><mat-card-title>Monthly Collection Trend</mat-card-title></mat-card-header>
       <mat-card-content>
         @if (data()!.charts.monthlyTrend.length) {
-        <div class="bar-chart">
-          @for (m of data()!.charts.monthlyTrend; track m.month) {
-          <div class="bar-item">
-            <div class="bar-wrap">
-              <div class="bar-fill" [style.height.%]="barHeight(m.collected)">
-                <span class="bar-tip">{{ fmt(m.collected) }}</span>
+          <div class="bar-chart">
+            @for (m of data()!.charts.monthlyTrend; track m.month) {
+              <div class="bar-item">
+                <div class="bar-wrap">
+                  <div class="bar-fill" [style.height.%]="barHeight(m.collected)">
+                    <span class="bar-tip">{{ fmt(m.collected) }}</span>
+                  </div>
+                </div>
+                <span class="bar-label">{{ m.monthName.slice(0,3) }}</span>
               </div>
-            </div>
-            <span class="bar-label">{{ m.monthName.slice(0,3) }}</span>
+            }
           </div>
-          }
-        </div>
         } @else {
-        <div class="empty-chart">
-          <mat-icon
-            style="font-size:32px;height:32px;width:32px;color:#cbd5e1;display:block;margin:0 auto 8px">bar_chart</mat-icon>
-          No collection data yet for this year
-        </div>
+          <div class="empty-chart">
+            <mat-icon style="font-size:32px;height:32px;width:32px;color:#cbd5e1;display:block;margin:0 auto 8px">bar_chart</mat-icon>
+            No collection data yet for this year
+          </div>
         }
       </mat-card-content>
     </mat-card>
 
-    <!-- Payment Methods -->
     <mat-card>
       <mat-card-header><mat-card-title>Payment Methods</mat-card-title></mat-card-header>
       <mat-card-content>
         @if (data()!.charts.paymentMethodBreakdown.length) {
-        <div class="method-list">
-          @for (m of data()!.charts.paymentMethodBreakdown; track m.method) {
-          <div class="method-item">
-            <div class="method-icon" [class]="'method-' + m.method">
-              <mat-icon>{{ methodIcon(m.method) }}</mat-icon>
-            </div>
-            <div style="flex:1">
-              <div class="flex-between" style="margin-bottom:4px">
-                <span style="font-size:.85rem;font-weight:600;text-transform:capitalize">{{ m.method.replace('_',' ')
-                  }}</span>
-                <span style="font-size:.85rem;font-weight:700">{{ fmt(+m.amount) }}</span>
+          <div class="method-list">
+            @for (m of data()!.charts.paymentMethodBreakdown; track m.method) {
+              <div class="method-item">
+                <div class="method-icon" [class]="'method-' + m.method">
+                  <mat-icon>{{ methodIcon(m.method) }}</mat-icon>
+                </div>
+                <div style="flex:1">
+                  <div class="flex-between" style="margin-bottom:4px">
+                    <span style="font-size:.85rem;font-weight:600;text-transform:capitalize">{{ m.method.replace('_',' ') }}</span>
+                    <span style="font-size:.85rem;font-weight:700">{{ fmt(+m.amount) }}</span>
+                  </div>
+                  <mat-progress-bar mode="determinate" [value]="methodPercent(+m.amount)" />
+                  <span style="font-size:.75rem;color:#64748b">{{ m.count }} transactions</span>
+                </div>
               </div>
-              <mat-progress-bar mode="determinate" [value]="methodPercent(+m.amount)" />
-              <span style="font-size:.75rem;color:#64748b">{{ m.count }} transactions</span>
-            </div>
+            }
           </div>
-          }
-        </div>
         } @else {
-        <div class="empty-chart">
-          <mat-icon
-            style="font-size:32px;height:32px;width:32px;color:#cbd5e1;display:block;margin:0 auto 8px">payments</mat-icon>
-          No payments recorded yet
-        </div>
+          <div class="empty-chart">
+            <mat-icon style="font-size:32px;height:32px;width:32px;color:#cbd5e1;display:block;margin:0 auto 8px">payments</mat-icon>
+            No payments recorded yet
+          </div>
         }
       </mat-card-content>
     </mat-card>
   </div>
 
-  <!-- Recent Payments -->
   <div class="grid-2 mt-6">
     <mat-card>
       <mat-card-header>
@@ -155,24 +181,15 @@
       </mat-card-header>
       <mat-card-content style="padding:0">
         @if (classData().length) {
-        <table mat-table [dataSource]="classData()">
-          <ng-container matColumnDef="class">
-            <th mat-header-cell *matHeaderCellDef>Class</th>
-            <td mat-cell *matCellDef="let r">{{ r.className || '—' }}</td>
-          </ng-container>
-          <ng-container matColumnDef="collected">
-            <th mat-header-cell *matHeaderCellDef>Collected</th>
-            <td mat-cell *matCellDef="let r" style="color:#16a34a;font-weight:600">{{ fmt(+r.collected) }}</td>
-          </ng-container>
-          <ng-container matColumnDef="outstanding">
-            <th mat-header-cell *matHeaderCellDef>Outstanding</th>
-            <td mat-cell *matCellDef="let r" style="color:#dc2626;font-weight:600">{{ fmt(+r.outstanding) }}</td>
-          </ng-container>
-          <tr mat-header-row *matHeaderRowDef="classColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: classColumns;"></tr>
-        </table>
+          <table mat-table [dataSource]="classData()">
+            <ng-container matColumnDef="class"><th mat-header-cell *matHeaderCellDef>Class</th><td mat-cell *matCellDef="let r">{{ r.className || '—' }}</td></ng-container>
+            <ng-container matColumnDef="collected"><th mat-header-cell *matHeaderCellDef>Collected</th><td mat-cell *matCellDef="let r" style="color:#16a34a;font-weight:600">{{ fmt(+r.collected) }}</td></ng-container>
+            <ng-container matColumnDef="outstanding"><th mat-header-cell *matHeaderCellDef>Outstanding</th><td mat-cell *matCellDef="let r" style="color:#dc2626;font-weight:600">{{ fmt(+r.outstanding) }}</td></ng-container>
+            <tr mat-header-row *matHeaderRowDef="classColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: classColumns;"></tr>
+          </table>
         } @else {
-        <div class="empty-chart">No class data available</div>
+          <div class="empty-chart">No class data available</div>
         }
       </mat-card-content>
     </mat-card>
@@ -184,42 +201,40 @@
       </mat-card-header>
       <mat-card-content style="padding:0">
         @if (data()!.recentPayments.length) {
-        <div class="payment-list">
-          @for (p of data()!.recentPayments.slice(0,6); track p.id) {
-          <div class="payment-row">
-            <div class="payment-avatar">{{ (p.student?.user?.firstName||'U')[0] }}{{ (p.student?.user?.lastName||'U')[0]
-              }}</div>
-            <div style="flex:1;min-width:0">
-              <div style="font-size:.85rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
-                {{ p.student?.user?.firstName }} {{ p.student?.user?.lastName }}
+          <div class="payment-list">
+            @for (p of data()!.recentPayments.slice(0,6); track p.id) {
+              <div class="payment-row">
+                <div class="payment-avatar">{{ (p.student?.user?.firstName||'U')[0] }}{{ (p.student?.user?.lastName||'U')[0] }}</div>
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:.85rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                    {{ p.student?.user?.firstName }} {{ p.student?.user?.lastName }}
+                  </div>
+                  <div style="font-size:.75rem;color:#64748b">{{ p.receiptNumber }}</div>
+                </div>
+                <div style="text-align:right">
+                  <div style="font-weight:700;color:#16a34a;font-size:.9rem">{{ fmt(p.amount) }}</div>
+                  <div style="font-size:.72rem;color:#94a3b8;text-transform:capitalize">{{ p.method.replace('_',' ') }}</div>
+                </div>
               </div>
-              <div style="font-size:.75rem;color:#64748b">{{ p.receiptNumber }}</div>
-            </div>
-            <div style="text-align:right">
-              <div style="font-weight:700;color:#16a34a;font-size:.9rem">{{ fmt(p.amount) }}</div>
-              <div style="font-size:.72rem;color:#94a3b8;text-transform:capitalize">{{ p.method.replace('_',' ') }}
-              </div>
-            </div>
+            }
           </div>
-          }
-        </div>
         } @else {
-        <div class="empty-chart">
-          <mat-icon
-            style="font-size:32px;height:32px;width:32px;color:#cbd5e1;display:block;margin:0 auto 8px">receipt</mat-icon>
-          No payments recorded yet
-        </div>
+          <div class="empty-chart">
+            <mat-icon style="font-size:32px;height:32px;width:32px;color:#cbd5e1;display:block;margin:0 auto 8px">receipt</mat-icon>
+            No payments recorded yet
+          </div>
         }
       </mat-card-content>
     </mat-card>
   </div>
+
   } @else {
-  <div style="text-align:center;padding:64px;color:#94a3b8">
-    <mat-icon style="font-size:48px;height:48px;width:48px;display:block;margin:0 auto 16px">analytics</mat-icon>
-    <p>No data available. Make sure an academic year is set as current.</p>
-    <button mat-flat-button color="primary" routerLink="/academic-years" style="margin-top:16px">
-      <mat-icon>calendar_today</mat-icon> Manage Academic Years
-    </button>
-  </div>
+    <div style="text-align:center;padding:64px;color:#94a3b8">
+      <mat-icon style="font-size:48px;height:48px;width:48px;display:block;margin:0 auto 16px">analytics</mat-icon>
+      <p>No data available. Make sure an academic year is set as current.</p>
+      <button mat-flat-button color="primary" routerLink="/academic-years" style="margin-top:16px">
+        <mat-icon>calendar_today</mat-icon> Manage Academic Years
+      </button>
+    </div>
   }
 </div>

@@ -162,10 +162,10 @@ const FREQ_MONTHS: Record<string, string> = {
                         Monthly Expected Collections
                       </div>
                       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
-                        @for (m of monthList; track m.n) {
-                          <div class="month-chip" [class.month-high]="isHighMonth(m.n)">
+                        @for (m of monthList; track m.key) {
+                          <div class="month-chip" [class.month-high]="isHighMonth(m.key)">
                             <span style="font-size:.72rem;color:#64748b">{{ m.l }}</span>
-                            <span style="font-size:.8rem;font-weight:700">{{ (data.monthlyTargets[m.n.toString()] || 0) | currency:'PKR ':'symbol':'1.0-0' }}</span>
+                            <span style="font-size:.8rem;font-weight:700">{{ (data.monthlyTargets[m.key] || 0) | currency:'PKR ':'symbol':'1.0-0' }}</span>
                           </div>
                         }
                       </div>
@@ -315,9 +315,22 @@ export class AcademicYearFormComponent implements OnInit {
   FREQ_MONTHS = FREQ_MONTHS;
   FREQ_MULTIPLIER = FREQ_MULTIPLIER;
 
-  monthList = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(n => ({
-    n, l: new Date(2000, n - 1, 1).toLocaleString('en', { month: 'short' })
-  }));
+  // monthList is built dynamically from the breakdown's monthlyTargets keys (format 'YYYY-M')
+  get monthList(): Array<{key: string; l: string}> {
+    const data = this.bd();
+    if (!data?.monthlyTargets) return [];
+    return Object.keys(data.monthlyTargets)
+      .sort((a, b) => {
+        const [ay, am] = a.split('-').map(Number);
+        const [by, bm] = b.split('-').map(Number);
+        return ay !== by ? ay - by : am - bm;
+      })
+      .map(key => {
+        const [year, month] = key.split('-').map(Number);
+        const label = new Date(year, month - 1, 1).toLocaleString('en', { month: 'short' }) + ' ' + year;
+        return { key, l: label };
+      });
+  }
 
   form = this.fb.group({
     name: ['', Validators.required],
@@ -386,11 +399,12 @@ export class AcademicYearFormComponent implements OnInit {
     return Object.values(data.monthlyTargets).reduce((s, v) => s + v, 0);
   }
 
-  isHighMonth(m: number): boolean {
+  isHighMonth(key: string): boolean {
     const data = this.bd();
     if (!data) return false;
-    const val = data.monthlyTargets[m.toString()] || 0;
-    const avg = this.monthlySum() / 12;
+    const val = data.monthlyTargets[key] || 0;
+    const total = Object.keys(data.monthlyTargets).length || 1;
+    const avg = this.monthlySum() / total;
     return val > avg;
   }
 

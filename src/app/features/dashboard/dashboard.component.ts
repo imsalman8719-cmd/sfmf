@@ -10,6 +10,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSelectModule } from '@angular/material/select';
 import { ReactiveFormsModule, FormControl } from '@angular/forms';
 import { ApiService } from '../../core/services/api.service';
@@ -25,7 +26,7 @@ import { KpiDetailDialogComponent } from './kpi-detail-dialog.component';
     CommonModule, CurrencyPipe, RouterLink, ReactiveFormsModule,
     MatCardModule, MatIconModule, MatButtonModule, MatSelectModule,
     MatProgressBarModule, MatDividerModule, MatTableModule,
-    MatDialogModule, MatProgressSpinnerModule, MatChipsModule, StatusLabelPipe,
+    MatDialogModule, MatProgressSpinnerModule, MatChipsModule, MatTooltipModule, StatusLabelPipe,
     KpiDetailDialogComponent
   ],
   templateUrl: './dashboard.component.html',

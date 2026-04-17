@@ -29,7 +29,7 @@ import { UserRole } from '../../../core/models';
             <div class="form-grid-2">
               <mat-form-field><mat-label>First Name *</mat-label><input matInput formControlName="firstName"></mat-form-field>
               <mat-form-field><mat-label>Last Name *</mat-label><input matInput formControlName="lastName"></mat-form-field>
-              <mat-form-field><mat-label>Email *</mat-label><input matInput type="email" formControlName="email"></mat-form-field>
+              <mat-form-field><mat-label>Email (optional)</mat-label><input matInput type="email" formControlName="email"><mat-hint>Used for notifications only — not required for login</mat-hint></mat-form-field>
               @if (!isEdit) { <mat-form-field><mat-label>Password *</mat-label><input matInput type="password" formControlName="password" placeholder="Min 8 characters"></mat-form-field> }
               <mat-form-field>
                 <mat-label>Role *</mat-label>
@@ -80,7 +80,7 @@ export class UserFormComponent implements OnInit {
 
   form = this.fb.group({
     firstName: ['', Validators.required], lastName: ['', Validators.required],
-    email: ['', [Validators.required, Validators.email]],
+    email: ['', Validators.email],
     password: ['', Validators.minLength(8)],
     role: [UserRole.FINANCE, Validators.required],
     phone: [''], department: [''], gender: [''], address: [''],

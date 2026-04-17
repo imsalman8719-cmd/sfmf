@@ -20,8 +20,8 @@ export class AuthService {
 
   constructor(private http: HttpClient, private router: Router) {}
 
-  login(email: string, password: string): Observable<AuthResponse> {
-    return this.http.post<ApiResponse<AuthResponse>>(`${this.API}/auth/login`, { email, password }).pipe(
+  login(identifier: string, password: string): Observable<AuthResponse> {
+    return this.http.post<ApiResponse<AuthResponse>>(`${this.API}/auth/login`, { identifier, password }).pipe(
       map(r => r.data),
       tap(data => {
         localStorage.setItem('access_token', data.accessToken);
@@ -58,8 +58,8 @@ export class AuthService {
     }));
   }
 
-  forgotPassword(email: string): Observable<any> {
-    return this.http.post(`${this.API}/auth/forgot-password`, { email });
+  forgotPassword(identifier: string): Observable<any> {
+    return this.http.post(`${this.API}/auth/forgot-password`, { identifier });
   }
 
   resetPassword(token: string, newPassword: string): Observable<any> {

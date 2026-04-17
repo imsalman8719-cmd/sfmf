@@ -4,6 +4,37 @@
   gap: 20px; 
 }
 
+/* KPI card help icon */
+.kpi-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.kpi-help {
+  font-size: 16px !important;
+  width: 16px !important;
+  height: 16px !important;
+  color: rgba(255, 255, 255, .5);
+  cursor: help;
+  transition: color .15s;
+
+  &:hover { color: rgba(255, 255, 255, .95); }
+}
+
+::ng-deep .kpi-tooltip {
+  font-size: .78rem !important;
+  max-width: 260px !important;
+  line-height: 1.5 !important;
+}
+
+.grid-2 { 
+  display: grid; 
+  grid-template-columns: 1fr 1fr; 
+  gap: 20px; 
+}
+
 .clickable-kpi { 
   cursor: pointer; 
   transition: transform .15s, box-shadow .15s; 
