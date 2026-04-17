@@ -80,8 +80,13 @@ import { AcademicYear, TargetVsActual } from '../../../core/models';
           <mat-tab label="Quarterly">
             <div class="form-grid-2 mt-6" style="gap:16px">
               @for (q of data()!.quarterly; track q.quarter) {
-                <mat-card>
-                  <mat-card-content>
+                <mat-card [class.current-quarter]="isCurrentQuarter(q.quarter)">
+                  @if (isCurrentQuarter(q.quarter)) {
+                    <div class="current-quarter-label">
+                      <mat-icon style="font-size:13px;height:13px;width:13px">schedule</mat-icon> Current Quarter
+                    </div>
+                  }
+                  <mat-card-content style="margin-top: 12px;">
                     <div class="flex-between mb-3">
                       <div>
                         <h3 style="font-weight:700;font-size:1rem">{{ q.quarter }}</h3>
@@ -121,7 +126,7 @@ import { AcademicYear, TargetVsActual } from '../../../core/models';
                   </td>
                 </ng-container>
                 <tr mat-header-row *matHeaderRowDef="mCols"></tr>
-                <tr mat-row *matRowDef="let row; columns: mCols;"></tr>
+                <tr mat-row *matRowDef="let row; columns: mCols;" [class.current-month-row]="isCurrentMonth(row)"></tr>
               </table>
             </div>
           </mat-tab>
@@ -131,7 +136,32 @@ import { AcademicYear, TargetVsActual } from '../../../core/models';
         <div class="loading-overlay"><mat-progress-bar mode="indeterminate" /></div>
       }
     </div>
-  `
+  `,
+  styles: [`
+    .current-quarter {
+      border: 2px solid #2563eb !important;
+      box-shadow: 0 0 0 4px rgba(37,99,235,.1);
+      position: relative;
+    }
+    .current-quarter-label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      position: absolute;
+      top: 0;
+      right: 12px;
+      background: #2563eb;
+      color: #fff;
+      font-size: .68rem;
+      font-weight: 700;
+      padding: 2px 10px;
+      border-radius: 0 0 8px 8px;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+    .current-month-row { background: #eff6ff !important; }
+    .current-month-row td { font-weight: 700 !important; color: #1d4ed8 !important; }
+  `]
 })
 export class TargetVsActualComponent implements OnInit {
   private api = inject(ApiService);
@@ -163,4 +193,14 @@ export class TargetVsActualComponent implements OnInit {
   achievementClass() { const p = this.annualPct(); return p >= 90 ? 'kpi-green' : p >= 70 ? 'kpi-blue' : 'kpi-red'; }
   achievementColor() { const p = this.annualPct(); return p >= 90 ? '#16a34a' : p >= 70 ? '#2563eb' : '#dc2626'; }
   rateClass(r: string) { const n = parseFloat(r); return n >= 90 ? 'badge-paid' : n >= 70 ? 'badge-pending' : 'badge-overdue'; }
+
+  isCurrentQuarter(quarter: string): boolean {
+    const q = Math.ceil((new Date().getMonth() + 1) / 3);
+    return quarter === `Q${q}`;
+  }
+
+  isCurrentMonth(m: { month: number; year: number }): boolean {
+    const n = new Date();
+    return m.month === n.getMonth() + 1 && m.year === n.getFullYear();
+  }
 }
