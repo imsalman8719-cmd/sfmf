@@ -242,10 +242,10 @@
                 @for (fs of availableFeeStructures(); track fs.id) {
                   <div class="service-card" [class.service-selected]="isFeeSelected(fs.id)" (click)="toggleFee(fs.id)">
                     <div class="svc-left">
-                      <mat-icon class="svc-icon">{{ categoryIcon(fs.category) }}</mat-icon>
+                      <mat-icon class="svc-icon">{{ categoryIcon(fs.name) }}</mat-icon>
                       <div>
                         <div class="svc-name">{{ fs.name }}</div>
-                        <div class="svc-meta">{{ fs.category | titlecase }} · PKR {{ fs.amount | number:'1.0-0' }}/mo</div>
+                        <div class="svc-meta">{{ fs.isOneTime ? "One-time" : "Monthly base" }} · PKR {{ fs.amount | number:'1.0-0' }}</div>
                       </div>
                     </div>
                     <mat-icon class="check-icon">{{ isFeeSelected(fs.id) ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>

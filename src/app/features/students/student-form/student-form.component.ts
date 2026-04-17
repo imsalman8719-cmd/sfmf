@@ -167,9 +167,16 @@ export class StudentFormComponent implements OnInit {
     this.feeForm.patchValue({ selectedFeeStructureIds: current });
   }
 
-  categoryIcon(cat: string): string {
-    const m: Record<string, string> = { library: 'menu_book', transport: 'directions_bus', laboratory: 'science', sports: 'sports_soccer', hostel: 'hotel', exam: 'assignment', uniform: 'checkroom', miscellaneous: 'more_horiz' };
-    return m[cat] || 'attach_money';
+  categoryIcon(name: string): string {
+    const n = (name || '').toLowerCase();
+    if (n.includes('library'))   return 'menu_book';
+    if (n.includes('transport') || n.includes('bus')) return 'directions_bus';
+    if (n.includes('lab'))       return 'science';
+    if (n.includes('sport'))     return 'sports_soccer';
+    if (n.includes('hostel'))    return 'hotel';
+    if (n.includes('exam'))      return 'assignment';
+    if (n.includes('uniform'))   return 'checkroom';
+    return 'attach_money';
   }
 
   private formatDate(d: any): string | null {

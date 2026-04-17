@@ -217,8 +217,8 @@ const FREQ_MONTHS: Record<string, string> = {
 
                             <div style="padding:4px 0">
                               <div style="margin-bottom:8px">
-                                <span class="badge" [class]="student.hasPlan ? 'badge-active' : 'badge-pending'" style="font-size:.72rem">
-                                  {{ student.hasPlan ? '✓ Custom fee plan' : 'Class default fees' }}
+                                <span class="badge badge-pending" style="font-size:.72rem">
+                                  Class fees + selected services
                                 </span>
                               </div>
 

@@ -15,7 +15,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ApiService } from '../../../core/services/api.service';
-import { AcademicYear, Student, FeeStructure, FeePlanPreview } from '../../../core/models';
+import { AcademicYear, Student, FeeStructure } from '../../../core/models';
 
 @Component({
   selector: 'app-generate-invoice',
@@ -193,46 +193,16 @@ import { AcademicYear, Student, FeeStructure, FeePlanPreview } from '../../../co
                 <mat-card-title>Fee Preview</mat-card-title>
                 <mat-card-subtitle>
                   @if (loadingPreview()) { Loading… }
-                  @else if (preview()?.hasPlan) { ✓ Custom fee plan }
-                  @else { Class default fees }
+                  @else { Applicable fee structures }
                 </mat-card-subtitle>
               </mat-card-header>
               <mat-card-content>
                 @if (loadingPreview()) {
                   <div style="text-align:center;padding:24px"><mat-spinner diameter="28" /></div>
-
-                } @else if (preview()?.hasPlan) {
-                  <div class="msg-box msg-success" style="margin-bottom:12px">
-                    <mat-icon>verified</mat-icon>
-                    <span>Custom fee plan — amounts are frequency-adjusted.</span>
-                  </div>
-                  @for (p of preview()!.plans; track p.feeStructureName) {
-                    <div class="fee-line">
-                      <div>
-                        <div style="font-size:.875rem;font-weight:600">{{ p.feeStructureName }}</div>
-                        <div style="font-size:.72rem;color:#64748b;text-transform:capitalize">
-                          {{ p.billingFrequency.replace('_',' ') }}
-                          (₨{{ p.baseAmount | number:'1.0-0' }} × {{ p.multiplier }})
-                        </div>
-                      </div>
-                      <strong>{{ p.billedAmount | currency:'PKR ':'symbol':'1.0-0' }}</strong>
-                    </div>
-                  }
-                  <mat-divider class="mt-3 mb-3" />
-                  <div class="fee-line" style="font-size:1rem;font-weight:700">
-                    <span>Invoice Total</span>
-                    <span style="color:#2563eb">{{ preview()!.totalAmount | currency:'PKR ':'symbol':'1.0-0' }}</span>
-                  </div>
-                  <a mat-stroked-button style="width:100%;margin-top:12px;font-size:.8rem"
-                     [routerLink]="['/student-fee-plans/assign']"
-                     [queryParams]="{studentId: student()!.id}">
-                    <mat-icon>edit</mat-icon> Edit Fee Plan
-                  </a>
-
                 } @else {
                   <div class="msg-box msg-info" style="margin-bottom:12px">
                     <mat-icon>info</mat-icon>
-                    <span>No custom plan — all active class fee structures will be included.</span>
+                    <span>Mandatory and selected optional fee structures for this student's class.</span>
                   </div>
                   @for (fs of classFeeSummary(); track fs.id) {
                     <div class="fee-line">
@@ -257,11 +227,6 @@ import { AcademicYear, Student, FeeStructure, FeePlanPreview } from '../../../co
                       <span style="color:#2563eb">{{ classFeeTotal() | currency:'PKR ':'symbol':'1.0-0' }}</span>
                     </div>
                   }
-                  <a mat-flat-button color="accent" style="width:100%;margin-top:12px;font-size:.8rem"
-                     [routerLink]="['/student-fee-plans/assign']"
-                     [queryParams]="{studentId: student()!.id}">
-                    <mat-icon>add</mat-icon> Assign Custom Fee Plan
-                  </a>
                 }
               </mat-card-content>
             </mat-card>
@@ -329,7 +294,6 @@ export class GenerateInvoiceComponent implements OnInit {
   loadingPreview = signal(false);
   years = signal<AcademicYear[]>([]);
   student = signal<Student | null>(null);
-  preview = signal<FeePlanPreview | null>(null);
   classFeeSummary = signal<FeeStructure[]>([]);
   lastSearched = '';
 
@@ -416,26 +380,18 @@ export class GenerateInvoiceComponent implements OnInit {
     this.preview.set(null);
     this.classFeeSummary.set([]);
 
-    this.api.get<FeePlanPreview>(`/student-fee-plans/student/${student.id}/preview`, { academicYearId: yearId }).subscribe({
-      next: p => {
-        this.preview.set(p);
-        if (!p.hasPlan && student.classId) {
-          this.api.getPaginated<FeeStructure>('/fee-structures', { limit: 50 }, {
-            academicYearId: yearId, isActive: 'true', classId: student.classId,
-          }).subscribe(r => this.classFeeSummary.set(r.data));
-        }
-        this.loadingPreview.set(false);
-      },
-      error: () => {
-        this.preview.set({ hasPlan: false, plans: [], totalAmount: 0 });
-        if (student.classId) {
-          this.api.getPaginated<FeeStructure>('/fee-structures', { limit: 50 }, {
-            academicYearId: yearId, isActive: 'true', classId: student.classId,
-          }).subscribe(r => this.classFeeSummary.set(r.data));
-        }
-        this.loadingPreview.set(false);
-      }
-    });
+    // Load all fee structures that apply to this student:
+    // mandatory class fees + student's selected optional fees
+    if (student.classId) {
+      this.api.getPaginated<FeeStructure>('/fee-structures', { limit: 50 }, {
+        academicYearId: yearId, isActive: 'true', classId: student.classId,
+      }).subscribe({
+        next: r => { this.classFeeSummary.set(r.data); this.loadingPreview.set(false); },
+        error: () => this.loadingPreview.set(false),
+      });
+    } else {
+      this.loadingPreview.set(false);
+    }
   }
 
   submit() {

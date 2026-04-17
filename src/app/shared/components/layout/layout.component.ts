@@ -186,7 +186,6 @@ export class LayoutComponent {
     { label: 'Classes',            icon: 'class',           route: '/classes',             roles: [UserRole.SUPER_ADMIN, UserRole.FINANCE, UserRole.ADMISSION, UserRole.TEACHER] },
     { label: 'Students',           icon: 'people',          route: '/students',            roles: [UserRole.SUPER_ADMIN, UserRole.FINANCE, UserRole.ADMISSION, UserRole.TEACHER] },
     { label: 'Fee Structures',     icon: 'receipt_long',    route: '/fee-structures',      roles: [UserRole.SUPER_ADMIN, UserRole.FINANCE], dividerBefore: true },
-    { label: 'Student Fee Plans',  icon: 'assignment_ind',  route: '/student-fee-plans',   roles: [UserRole.SUPER_ADMIN, UserRole.FINANCE] },
     { label: 'Invoices',           icon: 'description',     route: '/invoices',            roles: [UserRole.SUPER_ADMIN, UserRole.FINANCE, UserRole.TEACHER], dividerBefore: true },
     { label: 'Payments',           icon: 'payments',        route: '/payments',            roles: [UserRole.SUPER_ADMIN, UserRole.FINANCE] },
     { label: 'Reports',            icon: 'bar_chart',       route: '/reports',             roles: [UserRole.SUPER_ADMIN, UserRole.FINANCE], dividerBefore: true },
